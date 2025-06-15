@@ -1,0 +1,152 @@
+{
+  "login": {
+    "title": "Chào Mừng Trở Lại",
+    "subtitle": "Đăng nhập vào tài khoản của bạn",
+    "email": "Địa Chỉ Email",
+    "emailPlaceholder": "Nhập email của bạn",
+    "password": "Mật Khẩu",
+    "passwordPlaceholder": "Nhập mật khẩu của bạn",
+    "signIn": "Đăng Nhập",
+    "signingIn": "Đang đăng nhập...",
+    "forgotPassword": "Quên mật khẩu?",
+    "noAccount": "Chưa có tài khoản?",
+    "signUp": "Đăng ký tại đây",
+    "orLoginWith": "Hoặc đăng nhập bằng",
+    "google": "Google",
+    "otp": "OTP",
+    "fingerprint": "Vân Tay",
+    "googleLogin": "Tiếp tục với Google",
+    "otpLogin": "Đăng nhập bằng OTP",
+    "fingerprintLogin": "Đăng nhập bằng vân tay",
+    "errors": {
+      "emailRequired": "Email là bắt buộc",
+      "emailInvalid": "Vui lòng nhập địa chỉ email hợp lệ",
+      "passwordRequired": "Mật khẩu là bắt buộc",
+      "passwordMinLength": "Mật khẩu phải có ít nhất 6 ký tự"
+    },
+    "success": {
+      "loginSuccess": "Đăng Nhập Thành Công",
+      "welcomeBack": "Chào mừng trở lại, {{name}}!",
+      "otpSent": "Đã Gửi OTP",
+      "otpSentDescription": "Mã 6 chữ số đã được gửi đến {{email}}",
+      "otpSuccess": "Chào mừng! Bạn đã được xác thực qua OTP.",
+      "fingerprintSuccess": "Xác Thực Vân Tay Thành Công",
+      "fingerprintSuccessDescription": "Chào mừng! Bạn đã được xác thực qua vân tay.",
+      "googleSuccess": "Xác thực Google sẽ được triển khai tại đây."
+    },
+    "error": {
+      "invalidOtp": "OTP Không Hợp Lệ",
+      "invalidOtpDescription": "Vui lòng nhập mã 6 chữ số chính xác. Thử 123456 cho demo.",
+      "fingerprintFailed": "Xác Thực Vân Tay Thất Bại",
+      "fingerprintFailedDescription": "Vui lòng thử lại hoặc sử dụng phương thức đăng nhập khác."
+    }
+  },
+  "navigation": {
+    "search": "Tìm kiếm tệp và thư mục...",
+    "toggleTheme": "Chuyển đổi giao diện",
+    "user": {
+      "profile": "John Doe",
+      "email": "john.doe@example.com",
+      "settings": "Cài Đặt",
+      "signOut": "Đăng Xuất",
+      "gridView": "Xem Lưới",
+      "listView": "Xem Danh Sách"
+    }
+  },
+  "sidebar": {
+    "title": "Quản Lý Tệp",
+    "subtitle": "Tổ chức tệp của bạn",
+    "categories": "Danh Mục",
+    "actions": "Hành Động",
+    "allFiles": "Tất Cả Tệp",
+    "pictures": "Hình Ảnh",
+    "documents": "Tài Liệu",
+    "videos": "Video",
+    "music": "Âm Nhạc",
+    "other": "Khác",
+    "dashboard": "Bảng Điều Khiển",
+    "share": "Chia Sẻ",
+    "starred": "Đã Đánh Dấu",
+    "recycleBin": "Thùng Rác"
+  },
+  "fileManager": {
+    "emptyFolder": "Thư mục này trống",
+    "emptyFolderDescription": "Kéo thả tệp vào đây hoặc sử dụng nút tải lên để thêm tệp đầu tiên.",
+    "noSearchResults": "Không có tệp nào phù hợp với tìm kiếm",
+    "noSearchResultsDescription": "Thử điều chỉnh từ khóa tìm kiếm hoặc duyệt các thư mục khác.",
+    "loadingMore": "Đang tải thêm tệp...",
+    "endOfList": "Bạn đã xem hết danh sách",
+    "fileName": "Tên",
+    "fileSize": "Kích Thước",
+    "fileType": "Loại",
+    "lastModified": "Sửa Đổi Cuối",
+    "created": "Tạo",
+    "actions": "Hành Động",
+    "filePreview": "Xem Trước Tệp",
+    "previewNotAvailable": "Không thể xem trước loại tệp này",
+    "navigationHint": "Sử dụng phím mũi tên hoặc nút điều hướng để duyệt hình ảnh"
+  },
+  "actions": {
+    "upload": "Tải Lên",
+    "newFolder": "Thư Mục Mới",
+    "rename": "Đổi Tên",
+    "delete": "Xóa",
+    "download": "Tải Xuống",
+    "share": "Chia Sẻ",
+    "preview": "Xem Trước",
+    "copy": "Sao Chép",
+    "move": "Di Chuyển",
+    "star": "Đánh Dấu",
+    "unstar": "Bỏ Đánh Dấu"
+  },
+  "modals": {
+    "upload": {
+      "title": "Tải Lên Tệp",
+      "description": "Kéo thả tệp vào đây hoặc nhấp để duyệt",
+      "browse": "Duyệt Tệp",
+      "uploading": "Đang tải lên...",
+      "success": "Tải lên tệp thành công",
+      "error": "Tải lên tệp thất bại"
+    },
+    "createFolder": {
+      "title": "Tạo Thư Mục Mới",
+      "description": "Nhập tên cho thư mục mới",
+      "placeholder": "Tên thư mục",
+      "create": "Tạo Thư Mục",
+      "cancel": "Hủy",
+      "success": "Tạo thư mục thành công",
+      "error": "Tạo thư mục thất bại"
+    },
+    "rename": {
+      "title": "Đổi Tên",
+      "description": "Nhập tên mới",
+      "placeholder": "Tên mới",
+      "save": "Lưu",
+      "cancel": "Hủy",
+      "success": "Đổi tên thành công",
+      "error": "Đổi tên thất bại"
+    },
+    "delete": {
+      "title": "Xóa",
+      "description": "Bạn có chắc chắn muốn xóa mục này?",
+      "confirmText": "Hành động này không thể hoàn tác.",
+      "delete": "Xóa",
+      "cancel": "Hủy",
+      "success": "Xóa thành công",
+      "error": "Xóa thất bại"
+    }
+  },
+  "common": {
+    "save": "Lưu",
+    "cancel": "Hủy",
+    "close": "Đóng",
+    "confirm": "Xác Nhận",
+    "loading": "Đang tải...",
+    "error": "Lỗi",
+    "success": "Thành Công",
+    "warning": "Cảnh Báo",
+    "info": "Thông Tin",
+    "unknown": "Không rõ",
+    "of": "của"
+  }
+}

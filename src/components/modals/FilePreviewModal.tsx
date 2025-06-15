@@ -7,6 +7,37 @@ import { Button } from '../ui/button';
 import { Download, Edit, Trash2, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import VideoPlayerModal from './VideoPlayerModal';
 
+// Office Document Preview Component
+const OfficePreview = ({ fileUrl }: { fileUrl: string }) => {
+  const encodedUrl = encodeURIComponent(fileUrl);
+  const viewerUrl = `https://view.officeapps.live.com/op/view.aspx?src=${encodedUrl}`;
+
+  return (
+    <iframe
+      src={viewerUrl}
+      width="100%"
+      height="600px"
+      frameBorder="0"
+      title="Office File Preview"
+      className="rounded-lg border border-border/30"
+    />
+  );
+};
+
+// PDF Preview Component
+const PDFPreview = ({ fileUrl }: { fileUrl: string }) => {
+  return (
+    <iframe
+      src={fileUrl}
+      width="100%"
+      height="600px"
+      frameBorder="0"
+      title="PDF Preview"
+      className="rounded-lg border border-border/30"
+    />
+  );
+};
+
 const FilePreviewModal: React.FC = () => {
   const { modals, closeModal, previewFile, setRenameItem, setDeleteItems, openModal, displayedFiles, setPreviewFile } = useFileManager();
   const { t } = useTranslation();
@@ -118,21 +149,37 @@ const FilePreviewModal: React.FC = () => {
   const isImageFile = previewFile.type === 'file' && (previewFile.icon === '🖼️' || !!previewFile.name.match(/\.(jpg|jpeg|png|gif|bmp|webp)$/i));
   const isVideoFile = previewFile?.type === 'file' && 
     (previewFile.icon === '🎥' || !!previewFile.name.match(/\.(mp4|mov|avi|mkv|webm|m4v|3gp)$/i));
+  
+  // Check for document files
+  const isPDFFile = previewFile?.type === 'file' && 
+    (previewFile.icon === '📄' || !!previewFile.name.match(/\.pdf$/i));
+  const isOfficeFile = previewFile?.type === 'file' && 
+    !!previewFile.name.match(/\.(doc|docx|xls|xlsx|ppt|pptx)$/i);
+  const isDocumentFile = isPDFFile || isOfficeFile;
 
   // Show VideoPlayerModal for videos
   if (modals.preview && isVideoFile) {
     return <VideoPlayerModal />;
   }
 
-  if (!modals.preview || !previewFile || !isImageFile) {
+  if (!modals.preview || !previewFile) {
     return null;
   }
+
+  // Generate mock document URL for preview
+  const getDocumentPreviewUrl = () => {
+    if (isPDFFile) {
+      return `https://mozilla.github.io/pdf.js/web/compressed.tracemonkey-pldi-09.pdf`;
+    }
+    // For Office files, use a mock URL - in real app this would be the actual file URL
+    return `https://file-examples.com/storage/fe86d5c8c20d6fc2c5b46c6/2017/10/file_example_PPT_1MB.pptx`;
+  };
 
   const currentImageUrl = preloadedImages[previewFile.id] || previewFile.thumbnail || `https://picsum.photos/800/600?random=${previewFile.id}`;
 
   return (
-    <Dialog open={modals.preview && isImageFile} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-hidden">
+    <Dialog open={modals.preview} onOpenChange={handleClose}>
+      <DialogContent className="sm:max-w-5xl max-h-[90vh] overflow-hidden">
         <DialogHeader>
           <div className="flex items-center justify-between">
             <DialogTitle className="flex items-center gap-2">
@@ -157,15 +204,17 @@ const FilePreviewModal: React.FC = () => {
         
         <div className="space-y-6">
           {/* File Preview Area */}
-          <div className="relative aspect-video bg-gradient-to-br from-muted/20 to-muted/10 rounded-xl flex items-center justify-center border border-border/40 overflow-hidden">
+          <div className="relative bg-gradient-to-br from-muted/20 to-muted/10 rounded-xl flex items-center justify-center border border-border/40 overflow-hidden">
             {isImageFile ? (
               <>
-                <img 
-                  src={currentImageUrl}
-                  alt={previewFile.name}
-                  className="max-w-full max-h-full object-contain rounded-lg transition-all duration-300 ease-out"
-                  loading="lazy"
-                />
+                <div className="aspect-video w-full flex items-center justify-center">
+                  <img 
+                    src={currentImageUrl}
+                    alt={previewFile.name}
+                    className="max-w-full max-h-full object-contain rounded-lg transition-all duration-300 ease-out"
+                    loading="lazy"
+                  />
+                </div>
                 
                 {/* Navigation Arrows - Only show if there are multiple images */}
                 {totalImages > 1 && (
@@ -197,15 +246,25 @@ const FilePreviewModal: React.FC = () => {
                   </div>
                 )}
               </>
+            ) : isDocumentFile ? (
+              <div className="w-full">
+                {isPDFFile ? (
+                  <PDFPreview fileUrl={getDocumentPreviewUrl()} />
+                ) : isOfficeFile ? (
+                  <OfficePreview fileUrl={getDocumentPreviewUrl()} />
+                ) : null}
+              </div>
             ) : (
-              <div className="text-center">
-                <div className="text-6xl mb-4">{previewFile.icon}</div>
-                <p className="text-lg font-medium text-foreground">
-                  {t('fileManager.filePreview')}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  {t('fileManager.previewNotAvailable')}
-                </p>
+              <div className="text-center aspect-video flex items-center justify-center">
+                <div>
+                  <div className="text-6xl mb-4">{previewFile.icon}</div>
+                  <p className="text-lg font-medium text-foreground">
+                    {t('fileManager.filePreview')}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {t('fileManager.previewNotAvailable')}
+                  </p>
+                </div>
               </div>
             )}
           </div>

@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useFileManager } from '../contexts/FileManagerContext';
 import FileGrid from './FileGrid';
 import FileList from './FileList';
+import MusicPlaylist from './MusicPlaylist';
 import BreadcrumbNavigation from './BreadcrumbNavigation';
 import LoadingSkeleton from './LoadingSkeleton';
 import { useInfiniteScroll } from '../hooks/useInfiniteScroll';
@@ -20,7 +21,8 @@ const MainContent: React.FC<MainContentProps> = ({ sidebarOpen }) => {
     isLoading, 
     hasMore, 
     loadMoreFiles, 
-    searchQuery 
+    searchQuery,
+    currentFilter
   } = useFileManager();
   const { t } = useTranslation();
 
@@ -30,6 +32,25 @@ const MainContent: React.FC<MainContentProps> = ({ sidebarOpen }) => {
     onLoadMore: loadMoreFiles,
     threshold: 200
   });
+
+  // Show music playlist when music filter is active
+  if (currentFilter === 'music') {
+    return (
+      <div className="flex-1 flex flex-col h-full">
+        <div className="p-8 pb-6 flex-shrink-0">
+          <BreadcrumbNavigation />
+        </div>
+        
+        <div className="flex-1 overflow-auto px-8 pb-8 min-h-0" id="scroll-container">
+          <div className="h-full min-h-96 rounded-2xl border-2 border-dashed border-border/30 bg-card/50 backdrop-blur-sm transition-all duration-300 hover:border-primary/40 hover:bg-primary/5 hover:shadow-lg group">
+            <div className="p-8 h-full">
+              <MusicPlaylist />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex-1 flex flex-col h-full">

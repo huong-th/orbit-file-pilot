@@ -2,7 +2,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useFileManager } from '../contexts/FileManagerContext';
-import { Menu, Search, Upload, Grid, List, User, Settings, LogOut, Sun, Moon } from 'lucide-react';
+import { Menu, Search, Upload, Grid, List, User, Settings, LogOut, Sun, Moon, MoreHorizontal } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../components/ui/dropdown-menu';
@@ -62,7 +62,7 @@ const TopNavigation: React.FC<TopNavigationProps> = ({ onSidebarToggle, onSideba
       {/* Right section - Personal & Settings Actions */}
       <div className="flex items-center gap-1 md:gap-2">
         {/* View toggle - desktop only */}
-        <div className="hidden sm:flex glass-subtle rounded-xl p-1 border border-border/30 shadow-sm">
+        <div className="hidden md:flex glass-subtle rounded-xl p-1 border border-border/30 shadow-sm">
           <Button
             variant="ghost"
             size="sm"
@@ -89,25 +89,61 @@ const TopNavigation: React.FC<TopNavigationProps> = ({ onSidebarToggle, onSideba
           </Button>
         </div>
 
-        {/* Separator */}
-        <div className="hidden md:block w-px h-6 bg-gradient-to-b from-transparent via-border/60 to-transparent mx-2"></div>
+        {/* Mobile menu - shows on small/medium screens */}
+        <div className="md:hidden">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-10 w-10 p-0 rounded-xl hover:bg-accent/50 transition-all duration-300 hover:scale-110 hover-glow"
+              >
+                <MoreHorizontal className="h-4 w-4" />
+                <span className="sr-only">{t('navigation.moreOptions')}</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56 glass-card border border-border/40 shadow-xl rounded-2xl p-2" align="end">
+              <DropdownMenuItem 
+                className="cursor-pointer rounded-lg hover:bg-accent/60 transition-colors duration-200 font-medium" 
+                onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
+              >
+                {viewMode === 'grid' ? <List className="w-4 h-4 mr-2" /> : <Grid className="w-4 h-4 mr-2" />}
+                {viewMode === 'grid' ? t('navigation.user.listView') : t('navigation.user.gridView')}
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem 
+                className="cursor-pointer rounded-lg hover:bg-accent/60 transition-colors duration-200 font-medium" 
+                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+              >
+                {theme === 'dark' ? <Sun className="w-4 h-4 mr-2" /> : <Moon className="w-4 h-4 mr-2" />}
+                {t('navigation.toggleTheme')}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
 
-        {/* Language Switcher */}
-        <LanguageSwitcher />
+        {/* Desktop-only elements */}
+        <div className="hidden md:flex items-center gap-1 md:gap-2">
+          {/* Separator */}
+          <div className="w-px h-6 bg-gradient-to-b from-transparent via-border/60 to-transparent mx-2"></div>
 
-        {/* Theme toggle */}
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-          className="h-10 w-10 p-0 rounded-xl hover:bg-accent/50 transition-all duration-300 hover:scale-110 hover-glow"
-        >
-          <Sun className="h-4 w-4 rotate-0 scale-100 transition-all duration-300 dark:-rotate-90 dark:scale-0" />
-          <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all duration-300 dark:rotate-0 dark:scale-100" />
-          <span className="sr-only">{t('navigation.toggleTheme')}</span>
-        </Button>
+          {/* Language Switcher */}
+          <LanguageSwitcher />
 
-        {/* User menu */}
+          {/* Theme toggle */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            className="h-10 w-10 p-0 rounded-xl hover:bg-accent/50 transition-all duration-300 hover:scale-110 hover-glow"
+          >
+            <Sun className="h-4 w-4 rotate-0 scale-100 transition-all duration-300 dark:-rotate-90 dark:scale-0" />
+            <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all duration-300 dark:rotate-0 dark:scale-100" />
+            <span className="sr-only">{t('navigation.toggleTheme')}</span>
+          </Button>
+        </div>
+
+        {/* User menu - always visible */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-10 w-10 rounded-full p-0 ml-1 hover:bg-accent/50 transition-all duration-300 hover:scale-110 hover-glow">
@@ -125,14 +161,11 @@ const TopNavigation: React.FC<TopNavigationProps> = ({ onSidebarToggle, onSideba
               <p className="text-xs text-muted-foreground">{t('navigation.user.email')}</p>
             </div>
             <DropdownMenuSeparator />
-            {/* Mobile view toggle - show only on small screens */}
-            <div className="sm:hidden">
-              <DropdownMenuItem 
-                className="cursor-pointer rounded-lg hover:bg-accent/60 transition-colors duration-200 font-medium" 
-                onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
-              >
-                {viewMode === 'grid' ? <List className="w-4 h-4 mr-2" /> : <Grid className="w-4 h-4 mr-2" />}
-                {viewMode === 'grid' ? t('navigation.user.listView') : t('navigation.user.gridView')}
+            {/* Mobile-only options - show language switcher and other options on mobile */}
+            <div className="md:hidden">
+              <DropdownMenuItem className="cursor-pointer rounded-lg hover:bg-accent/60 transition-colors duration-200 font-medium">
+                <Settings className="w-4 h-4 mr-2" />
+                {t('navigation.user.language')}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
             </div>

@@ -59,7 +59,7 @@ const TopNavigation: React.FC<TopNavigationProps> = ({ onSidebarToggle, onSideba
         </div>
       </div>
 
-      {/* Right section - All other controls */}
+      {/* Right section - Desktop controls */}
       <div className="flex items-center gap-1 md:gap-2">
         {/* View toggle - desktop only */}
         <div className="hidden md:flex glass-subtle rounded-xl p-1 border border-border/30 shadow-sm">
@@ -87,39 +87,6 @@ const TopNavigation: React.FC<TopNavigationProps> = ({ onSidebarToggle, onSideba
           >
             <List className="w-4 h-4" />
           </Button>
-        </div>
-
-        {/* Mobile menu - shows on small/medium screens */}
-        <div className="md:hidden">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-10 w-10 p-0 rounded-xl hover:bg-accent/50 transition-all duration-300 hover:scale-110 hover-glow"
-              >
-                <MoreHorizontal className="h-4 w-4" />
-                <span className="sr-only">{t('navigation.moreOptions')}</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56 glass-card border border-border/40 shadow-xl rounded-2xl p-2" align="end">
-              <DropdownMenuItem 
-                className="cursor-pointer rounded-lg hover:bg-accent/60 transition-colors duration-200 font-medium" 
-                onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
-              >
-                {viewMode === 'grid' ? <List className="w-4 h-4 mr-2" /> : <Grid className="w-4 h-4 mr-2" />}
-                {viewMode === 'grid' ? t('navigation.user.listView') : t('navigation.user.gridView')}
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem 
-                className="cursor-pointer rounded-lg hover:bg-accent/60 transition-colors duration-200 font-medium" 
-                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-              >
-                {theme === 'dark' ? <Sun className="w-4 h-4 mr-2" /> : <Moon className="w-4 h-4 mr-2" />}
-                {t('navigation.toggleTheme')}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
         </div>
 
         {/* Desktop-only elements */}
@@ -161,14 +128,35 @@ const TopNavigation: React.FC<TopNavigationProps> = ({ onSidebarToggle, onSideba
               <p className="text-xs text-muted-foreground">{t('navigation.user.email')}</p>
             </div>
             <DropdownMenuSeparator />
-            {/* Mobile-only language switcher */}
+            
+            {/* Mobile-only controls */}
             <div className="md:hidden">
+              {/* View Mode Toggle */}
+              <DropdownMenuItem 
+                className="cursor-pointer rounded-lg hover:bg-accent/60 transition-colors duration-200 font-medium" 
+                onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
+              >
+                {viewMode === 'grid' ? <List className="w-4 h-4 mr-2" /> : <Grid className="w-4 h-4 mr-2" />}
+                {viewMode === 'grid' ? t('navigation.user.listView') : t('navigation.user.gridView')}
+              </DropdownMenuItem>
+              
+              {/* Theme Toggle */}
+              <DropdownMenuItem 
+                className="cursor-pointer rounded-lg hover:bg-accent/60 transition-colors duration-200 font-medium" 
+                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+              >
+                {theme === 'dark' ? <Sun className="w-4 h-4 mr-2" /> : <Moon className="w-4 h-4 mr-2" />}
+                {t('navigation.toggleTheme')}
+              </DropdownMenuItem>
+              
+              {/* Language Switcher */}
               <div className="px-3 py-2">
                 <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">{t('navigation.user.language')}</p>
                 <LanguageSwitcher />
               </div>
               <DropdownMenuSeparator />
             </div>
+            
             <DropdownMenuItem className="cursor-pointer rounded-lg hover:bg-accent/60 transition-colors duration-200 font-medium">
               <Settings className="w-4 h-4 mr-2" />
               {t('navigation.user.settings')}

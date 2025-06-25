@@ -1,3 +1,4 @@
+
 {
   "login": {
     "title": "Welcome Back",
@@ -44,13 +45,15 @@
   "navigation": {
     "search": "Search files and folders...",
     "toggleTheme": "Toggle theme",
+    "moreOptions": "More options",
     "user": {
       "profile": "John Doe",
       "email": "john.doe@example.com",
       "settings": "Settings",
       "signOut": "Sign out",
       "gridView": "Grid View",
-      "listView": "List View"
+      "listView": "List View",
+      "language": "Language"
     }
   },
   "sidebar": {

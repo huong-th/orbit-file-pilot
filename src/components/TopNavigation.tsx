@@ -23,8 +23,8 @@ const TopNavigation: React.FC<TopNavigationProps> = ({ onSidebarToggle, onSideba
 
   return (
     <header className="sticky top-0 h-16 glass-subtle border-b border-border/30 flex items-center gap-4 px-6 backdrop-blur-xl z-30 flex-shrink-0 shadow-md">
-      {/* Left section */}
-      <div className="flex items-center gap-3">
+      {/* Left section - Sidebar toggle and Search */}
+      <div className="flex items-center gap-3 flex-1 max-w-2xl">
         <Button
           variant="ghost"
           size="sm"
@@ -43,23 +43,23 @@ const TopNavigation: React.FC<TopNavigationProps> = ({ onSidebarToggle, onSideba
         >
           <Menu className="w-4 h-4" />
         </Button>
-      </div>
 
-      {/* Search */}
-      <div className="flex-1 max-w-lg mr-6">
-        <div className="relative">
-          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-          <Input
-            type="text"
-            placeholder={t('navigation.search')}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-12 glass-subtle border border-border/40 focus:border-primary/60 focus:ring-2 focus:ring-primary/30 rounded-xl h-10 transition-all duration-300 shadow-sm hover:shadow-md hover-glow font-medium placeholder:text-muted-foreground/70"
-          />
+        {/* Search */}
+        <div className="flex-1 max-w-lg">
+          <div className="relative">
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+            <Input
+              type="text"
+              placeholder={t('navigation.search')}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-12 glass-subtle border border-border/40 focus:border-primary/60 focus:ring-2 focus:ring-primary/30 rounded-xl h-10 transition-all duration-300 shadow-sm hover:shadow-md hover-glow font-medium placeholder:text-muted-foreground/70"
+            />
+          </div>
         </div>
       </div>
 
-      {/* Right section - Personal & Settings Actions */}
+      {/* Right section - All other controls */}
       <div className="flex items-center gap-1 md:gap-2">
         {/* View toggle - desktop only */}
         <div className="hidden md:flex glass-subtle rounded-xl p-1 border border-border/30 shadow-sm">
@@ -161,12 +161,12 @@ const TopNavigation: React.FC<TopNavigationProps> = ({ onSidebarToggle, onSideba
               <p className="text-xs text-muted-foreground">{t('navigation.user.email')}</p>
             </div>
             <DropdownMenuSeparator />
-            {/* Mobile-only options - show language switcher and other options on mobile */}
+            {/* Mobile-only language switcher */}
             <div className="md:hidden">
-              <DropdownMenuItem className="cursor-pointer rounded-lg hover:bg-accent/60 transition-colors duration-200 font-medium">
-                <Settings className="w-4 h-4 mr-2" />
-                {t('navigation.user.language')}
-              </DropdownMenuItem>
+              <div className="px-3 py-2">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">{t('navigation.user.language')}</p>
+                <LanguageSwitcher />
+              </div>
               <DropdownMenuSeparator />
             </div>
             <DropdownMenuItem className="cursor-pointer rounded-lg hover:bg-accent/60 transition-colors duration-200 font-medium">

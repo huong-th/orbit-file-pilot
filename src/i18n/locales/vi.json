@@ -1,4 +1,3 @@
-
 {
   "login": {
     "title": "Chào Mừng Trở Lại",
@@ -99,16 +98,16 @@
   },
   "navigation": {
     "search": "Tìm kiếm tệp và thư mục...",
-    "toggleTheme": "Chuyển đổi giao diện",
-    "moreOptions": "Tùy chọn khác",
+    "toggleTheme": "Chuyển đổi chủ đề",
     "user": {
       "profile": "John Doe",
-      "email": "john.doe@example.com",
-      "settings": "Cài Đặt",
-      "signOut": "Đăng Xuất",
-      "gridView": "Xem Lưới",
-      "listView": "Xem Danh Sách",
-      "language": "Ngôn Ngữ"
+      "email": "john@example.com",
+      "settings": "Cài đặt",
+      "signOut": "Đăng xuất",
+      "gridView": "Xem lưới",
+      "listView": "Xem danh sách",
+      "language": "Ngôn ngữ",
+      "theme": "Chủ đề"
     }
   },
   "sidebar": {

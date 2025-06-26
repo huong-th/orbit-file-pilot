@@ -2,8 +2,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useAppDispatch } from '../../hooks/redux';
+import { loginUser } from '../../store/authSlice';
 import { Mail, Smartphone, Fingerprint } from 'lucide-react';
-import { Button } from '../ui/button';
 import { Alert, AlertDescription } from '../ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { useToast } from '../../hooks/use-toast';
@@ -28,6 +29,7 @@ type LoginMethod = 'password' | 'google' | 'otp' | 'fingerprint';
 
 const LoginForm: React.FC = () => {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const { toast } = useToast();
   const { t } = useTranslation();
   
@@ -44,13 +46,23 @@ const LoginForm: React.FC = () => {
       setIsLoading(true);
       setError(null);
       
-      const result = await authApi.loginPassword(data.email, data.password);
+      const resultAction = await dispatch(loginUser(data));
       
-      toast({
-        title: t('login.success.loginSuccess'),
-        description: t('login.success.welcomeBack', { name: result.user.name }),
-      });
-      navigate('/dashboard');
+      if (loginUser.fulfilled.match(resultAction)) {
+        toast({
+          title: t('login.success.loginSuccess'),
+          description: t('login.success.welcomeBack', { name: resultAction.payload.user.name }),
+        });
+        navigate('/dashboard');
+      } else {
+        const errorMessage = resultAction.payload as string || 'Login failed';
+        setError(errorMessage);
+        toast({
+          title: 'Login Failed',
+          description: errorMessage,
+          variant: "destructive",
+        });
+      }
     } catch (err: any) {
       const errorMessage = err.response?.data?.message || err.message || 'Login failed';
       setError(errorMessage);
@@ -120,12 +132,27 @@ const LoginForm: React.FC = () => {
   };
 
   const handleGoogleLogin = async () => {
-    // This would typically open Google OAuth popup
-    // For now, we'll show a placeholder message
-    toast({
-      title: t('login.google'),
-      description: 'Google OAuth integration would be implemented here with your API',
-    });
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      // This would typically open Google OAuth popup
+      // For now, we'll show a placeholder message
+      toast({
+        title: t('login.google'),
+        description: 'Google OAuth integration would be implemented here with your API',
+      });
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.message || err.message || 'Google login failed';
+      setError(errorMessage);
+      toast({
+        title: 'Google Login Failed',
+        description: errorMessage,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleFingerprintLogin = async () => {
@@ -265,13 +292,13 @@ const LoginForm: React.FC = () => {
           <div className="mt-6 text-center">
             <p className="text-xs text-muted-foreground">
               Don't have an account?{' '}
-              <Button 
-                variant="link" 
-                className="text-xs text-primary p-0 h-auto hover:underline"
+              <button 
+                type="button"
+                className="text-xs text-primary p-0 h-auto hover:underline cursor-pointer"
                 onClick={() => navigate('/register')}
               >
                 Sign up here
-              </Button>
+              </button>
             </p>
           </div>
         </div>

@@ -1,22 +1,55 @@
+
 import React from 'react';
-import { Sun, Moon } from 'lucide-react';
+import { Sun, Moon, Monitor } from 'lucide-react';
 import { Button } from '../ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { useTheme } from 'next-themes';
 
 const DarkModeToggle: React.FC = () => {
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme, resolvedTheme } = useTheme();
+
+  const themeOptions = [
+    { value: 'light', label: 'Light', icon: Sun },
+    { value: 'dark', label: 'Dark', icon: Moon },
+    { value: 'system', label: 'System', icon: Monitor },
+  ];
+
+  const currentTheme = themeOptions.find(option => option.value === theme) || themeOptions[2];
+  const CurrentIcon = currentTheme.icon;
 
   return (
-    <Button
-      variant="ghost"
-      size="sm"
-      onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-      className="absolute top-4 right-4 h-10 w-10 p-0 rounded-xl hover:bg-accent/50 transition-all duration-300 hover:scale-110 z-10"
-    >
-      <Sun className="h-4 w-4 rotate-0 scale-100 transition-all duration-300 dark:-rotate-90 dark:scale-0" />
-      <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all duration-300 dark:rotate-0 dark:scale-100" />
-      <span className="sr-only">Toggle theme</span>
-    </Button>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-10 w-10 p-0 rounded-xl hover:bg-accent/50 transition-all duration-300 hover:scale-110 z-10"
+        >
+          <CurrentIcon className="h-4 w-4" />
+          <span className="sr-only">Toggle theme</span>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-36">
+        {themeOptions.map((option) => {
+          const Icon = option.icon;
+          return (
+            <DropdownMenuItem
+              key={option.value}
+              onClick={() => setTheme(option.value)}
+              className={`cursor-pointer ${theme === option.value ? 'bg-accent' : ''}`}
+            >
+              <Icon className="w-4 h-4 mr-2" />
+              {option.label}
+              {theme === option.value && resolvedTheme && (
+                <span className="ml-auto text-xs text-muted-foreground">
+                  {option.value === 'system' ? `(${resolvedTheme})` : ''}
+                </span>
+              )}
+            </DropdownMenuItem>
+          );
+        })}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };
 

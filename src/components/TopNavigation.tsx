@@ -2,13 +2,15 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useFileManager } from '../contexts/FileManagerContext';
-import { Menu, Search, Upload, Grid, List, User, Settings, LogOut, Sun, Moon, MoreHorizontal } from 'lucide-react';
+import { Menu, Search, Upload, Grid, List, User, Settings } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar';
 import { useTheme } from 'next-themes';
 import LanguageSwitcher from './LanguageSwitcher';
+import LogoutButton from './auth/LogoutButton';
+import DarkModeToggle from './auth/DarkModeToggle';
 
 interface TopNavigationProps {
   onSidebarToggle: () => void;
@@ -98,16 +100,7 @@ const TopNavigation: React.FC<TopNavigationProps> = ({ onSidebarToggle, onSideba
           <LanguageSwitcher />
 
           {/* Theme toggle */}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-            className="h-10 w-10 p-0 rounded-xl hover:bg-accent/50 transition-all duration-300 hover:scale-110 hover-glow"
-          >
-            <Sun className="h-4 w-4 rotate-0 scale-100 transition-all duration-300 dark:-rotate-90 dark:scale-0" />
-            <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all duration-300 dark:rotate-0 dark:scale-100" />
-            <span className="sr-only">{t('navigation.toggleTheme')}</span>
-          </Button>
+          <DarkModeToggle />
         </div>
 
         {/* User menu - always visible */}
@@ -140,14 +133,11 @@ const TopNavigation: React.FC<TopNavigationProps> = ({ onSidebarToggle, onSideba
                 {viewMode === 'grid' ? t('navigation.user.listView') : t('navigation.user.gridView')}
               </DropdownMenuItem>
               
-              {/* Theme Toggle */}
-              <DropdownMenuItem 
-                className="cursor-pointer rounded-lg hover:bg-accent/60 transition-colors duration-200 font-medium" 
-                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-              >
-                {theme === 'dark' ? <Sun className="w-4 h-4 mr-2" /> : <Moon className="w-4 h-4 mr-2" />}
-                {t('navigation.toggleTheme')}
-              </DropdownMenuItem>
+              {/* Theme Toggle - Mobile only */}
+              <div className="px-3 py-2">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">{t('navigation.user.theme')}</p>
+                <DarkModeToggle />
+              </div>
               
               {/* Language Switcher */}
               <div className="px-3 py-2">
@@ -162,10 +152,9 @@ const TopNavigation: React.FC<TopNavigationProps> = ({ onSidebarToggle, onSideba
               {t('navigation.user.settings')}
             </DropdownMenuItem>
             <DropdownMenuSeparator className="my-2" />
-            <DropdownMenuItem className="cursor-pointer text-destructive rounded-lg hover:bg-destructive/10 transition-colors duration-200 font-medium">
-              <LogOut className="w-4 h-4 mr-2" />
-              {t('navigation.user.signOut')}
-            </DropdownMenuItem>
+            <div className="px-2">
+              <LogoutButton variant="ghost" size="sm" showIcon={true} showText={true} />
+            </div>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

@@ -1,9 +1,10 @@
+
 import axios, { AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import Cookies from 'js-cookie';
 import { store } from '../store/store';
 import { logout } from '../store/authSlice';
 
-const API_BASE_URL = 'https://api.escuelajs.co/api/v1';
+const API_BASE_URL = 'http://localhost:3000';
 
 // Create axios instance
 const api = axios.create({

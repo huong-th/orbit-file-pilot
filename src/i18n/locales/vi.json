@@ -42,6 +42,61 @@
       "fingerprintFailedDescription": "Vui lòng thử lại hoặc sử dụng phương thức đăng nhập khác."
     }
   },
+  "register": {
+    "title": "Tạo Tài Khoản",
+    "subtitle": "Đăng ký tài khoản mới",
+    "email": "Địa Chỉ Email",
+    "emailPlaceholder": "Nhập email của bạn",
+    "username": "Tên Người Dùng",
+    "usernamePlaceholder": "Nhập tên người dùng",
+    "password": "Mật Khẩu",
+    "passwordPlaceholder": "Nhập mật khẩu",
+    "confirmPassword": "Xác Nhận Mật Khẩu",
+    "confirmPasswordPlaceholder": "Xác nhận mật khẩu",
+    "signUp": "Đăng Ký",
+    "creating": "Đang tạo tài khoản...",
+    "orRegisterWith": "Hoặc đăng ký bằng",
+    "googleSignUp": "Tiếp tục với Google",
+    "haveAccount": "Đã có tài khoản?",
+    "signInHere": "Đăng nhập tại đây",
+    "errors": {
+      "emailRequired": "Email là bắt buộc",
+      "emailInvalid": "Vui lòng nhập địa chỉ email hợp lệ",
+      "usernameRequired": "Tên người dùng là bắt buộc",
+      "usernameMinLength": "Tên người dùng phải có ít nhất 3 ký tự",
+      "passwordRequired": "Mật khẩu là bắt buộc",
+      "passwordMinLength": "Mật khẩu phải có ít nhất 6 ký tự",
+      "confirmPasswordRequired": "Vui lòng xác nhận mật khẩu",
+      "passwordsMatch": "Mật khẩu phải khớp"
+    },
+    "success": {
+      "title": "Đăng Ký Thành Công",
+      "description": "Tài khoản của bạn đã được tạo. Vui lòng kiểm tra email để xác minh tài khoản."
+    },
+    "error": {
+      "title": "Đăng Ký Thất Bại"
+    }
+  },
+  "forgotPassword": {
+    "title": "Đặt Lại Mật Khẩu",
+    "subtitle": "Nhập email để nhận liên kết đặt lại mật khẩu",
+    "email": "Địa Chỉ Email",
+    "emailPlaceholder": "Nhập email của bạn",
+    "sendReset": "Gửi Liên Kết Đặt Lại",
+    "sending": "Đang gửi...",
+    "errors": {
+      "emailRequired": "Email là bắt buộc",
+      "emailInvalid": "Vui lòng nhập địa chỉ email hợp lệ"
+    },
+    "success": {
+      "title": "Đã Gửi Liên Kết Đặt Lại",
+      "description": "Liên kết đặt lại mật khẩu đã được gửi đến {{email}}",
+      "sent": "Kiểm tra email để nhận liên kết đặt lại"
+    },
+    "error": {
+      "title": "Không Thể Gửi Liên Kết Đặt Lại"
+    }
+  },
   "navigation": {
     "search": "Tìm kiếm tệp và thư mục...",
     "toggleTheme": "Chuyển đổi giao diện",

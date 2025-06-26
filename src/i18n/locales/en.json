@@ -42,6 +42,61 @@
       "fingerprintFailedDescription": "Please try again or use a different login method."
     }
   },
+  "register": {
+    "title": "Create Account",
+    "subtitle": "Sign up for a new account",
+    "email": "Email Address",
+    "emailPlaceholder": "Enter your email",
+    "username": "Username",
+    "usernamePlaceholder": "Enter your username",
+    "password": "Password",
+    "passwordPlaceholder": "Enter your password",
+    "confirmPassword": "Confirm Password",
+    "confirmPasswordPlaceholder": "Confirm your password",
+    "signUp": "Sign Up",
+    "creating": "Creating account...",
+    "orRegisterWith": "Or register with",
+    "googleSignUp": "Continue with Google",
+    "haveAccount": "Already have an account?",
+    "signInHere": "Sign in here",
+    "errors": {
+      "emailRequired": "Email is required",
+      "emailInvalid": "Please enter a valid email address",
+      "usernameRequired": "Username is required",
+      "usernameMinLength": "Username must be at least 3 characters long",
+      "passwordRequired": "Password is required",
+      "passwordMinLength": "Password must be at least 6 characters long",
+      "confirmPasswordRequired": "Please confirm your password",
+      "passwordsMatch": "Passwords must match"
+    },
+    "success": {
+      "title": "Registration Successful",
+      "description": "Your account has been created. Please check your email to verify your account."
+    },
+    "error": {
+      "title": "Registration Failed"
+    }
+  },
+  "forgotPassword": {
+    "title": "Reset Password",
+    "subtitle": "Enter your email to receive a password reset link",
+    "email": "Email Address",
+    "emailPlaceholder": "Enter your email",
+    "sendReset": "Send Reset Link",
+    "sending": "Sending...",
+    "errors": {
+      "emailRequired": "Email is required",
+      "emailInvalid": "Please enter a valid email address"
+    },
+    "success": {
+      "title": "Reset Link Sent",
+      "description": "Password reset link sent to {{email}}",
+      "sent": "Check your email for the reset link"
+    },
+    "error": {
+      "title": "Failed to Send Reset Link"
+    }
+  },
   "navigation": {
     "search": "Search files and folders...",
     "toggleTheme": "Toggle theme",

@@ -1,7 +1,6 @@
-
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button } from '../../ui/button';
+import { Button } from '@/components/ui/button';
 
 interface GoogleLoginTabProps {
   onGoogleLogin: () => Promise<void>;
@@ -28,7 +27,7 @@ const GoogleLoginTab: React.FC<GoogleLoginTabProps> = ({
       <p className="text-sm text-muted-foreground mb-6">
         Sign in securely with your Google account
       </p>
-      <Button 
+      <Button
         onClick={onGoogleLogin}
         className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 transition-colors"
         disabled={isLoading}

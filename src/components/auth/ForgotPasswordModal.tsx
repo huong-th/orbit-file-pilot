@@ -1,16 +1,15 @@
-
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useTranslation } from 'react-i18next';
 import { Mail, Send } from 'lucide-react';
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
-import { Label } from '../ui/label';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../ui/dialog';
-import { Alert, AlertDescription } from '../ui/alert';
-import { useToast } from '../../hooks/use-toast';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useToast } from '@/hooks/use-toast.ts';
 
 const createForgotPasswordSchema = (t: any) => yup.object().shape({
   email: yup
@@ -31,7 +30,7 @@ interface ForgotPasswordModalProps {
 const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({ open, onOpenChange }) => {
   const { toast } = useToast();
   const { t } = useTranslation();
-  
+
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -50,22 +49,22 @@ const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({ open, onOpenC
     try {
       setIsLoading(true);
       setError(null);
-      
+
       // This would call your forgot password API endpoint
       // For now, we'll simulate the request
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
+
       setIsSuccess(true);
       toast({
         title: t('forgotPassword.success.title'),
         description: t('forgotPassword.success.description', { email: data.email }),
       });
-      
+
       // Reset form and close modal after 2 seconds
       setTimeout(() => {
         handleClose();
       }, 2000);
-      
+
     } catch (err: any) {
       const errorMessage = err.response?.data?.message || err.message || 'Failed to send reset email';
       setError(errorMessage);
@@ -147,17 +146,17 @@ const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({ open, onOpenC
               </div>
 
               <div className="flex gap-3 pt-4">
-                <Button 
+                <Button
                   type="button"
-                  variant="outline" 
+                  variant="outline"
                   onClick={handleClose}
                   className="flex-1"
                   disabled={isLoading}
                 >
                   {t('common.cancel')}
                 </Button>
-                <Button 
-                  type="submit" 
+                <Button
+                  type="submit"
                   className="flex-1 bg-primary hover:bg-primary/90"
                   disabled={isLoading}
                 >

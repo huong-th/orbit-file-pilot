@@ -1,5 +1,4 @@
-
-import api from './api';
+import api from '@/services/api';
 
 interface LoginResponse {
   access_token: string;
@@ -117,7 +116,7 @@ export const authApi = {
     const config = accessToken ? {
       headers: { Authorization: `Bearer ${accessToken}` }
     } : {};
-    
+
     const response = await api.get('/auth/profile', config);
     return response.data;
   },

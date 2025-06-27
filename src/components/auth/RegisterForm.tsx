@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -10,8 +9,8 @@ import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Alert, AlertDescription } from '../ui/alert';
-import { useToast } from '../../hooks/use-toast';
-import { authApi } from '../../services/authApi';
+import { useToast } from '@/hooks/use-toast';
+import { authApi } from '@/services/authApi';
 
 const createRegisterSchema = (t: any) => yup.object().shape({
   email: yup
@@ -43,7 +42,7 @@ const RegisterForm: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { t } = useTranslation();
-  
+
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -62,14 +61,14 @@ const RegisterForm: React.FC = () => {
     try {
       setIsLoading(true);
       setError(null);
-      
+
       await authApi.register(data.email, data.username, data.password);
-      
+
       toast({
         title: t('register.success.title'),
         description: t('register.success.description'),
       });
-      
+
       // Redirect to login page
       navigate('/login');
     } catch (err: any) {
@@ -155,7 +154,7 @@ const RegisterForm: React.FC = () => {
               <p className="text-sm text-destructive mt-1">{errors.username.message}</p>
             )}
           </div>
-          
+
           <div className="space-y-2">
             <Label htmlFor="password" className="text-sm font-medium">
               {t('register.password')}
@@ -220,8 +219,8 @@ const RegisterForm: React.FC = () => {
             )}
           </div>
 
-          <Button 
-            type="submit" 
+          <Button
+            type="submit"
             className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-2.5 transition-colors"
             disabled={isLoading}
           >
@@ -252,7 +251,7 @@ const RegisterForm: React.FC = () => {
         </div>
 
         {/* Google Registration */}
-        <Button 
+        <Button
           onClick={handleGoogleRegister}
           variant="outline"
           className="w-full border-border/40 hover:bg-accent/50 font-semibold py-2.5 transition-colors"
@@ -270,8 +269,8 @@ const RegisterForm: React.FC = () => {
         <div className="mt-6 text-center">
           <p className="text-xs text-muted-foreground">
             {t('register.haveAccount')}{' '}
-            <Button 
-              variant="link" 
+            <Button
+              variant="link"
               className="text-xs text-primary p-0 h-auto hover:underline"
               onClick={() => navigate('/login')}
             >

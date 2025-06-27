@@ -1,16 +1,16 @@
 import React, { useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useFileManager } from '../../contexts/FileManagerContext';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
-import { Button } from '../ui/button';
 import { X, Download, Edit, Trash2 } from 'lucide-react';
+import { useFileManager } from '@/contexts/FileManagerContext';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 const VideoPlayerModal: React.FC = () => {
   const { modals, closeModal, previewFile, setRenameItem, setDeleteItems, openModal } = useFileManager();
   const { t } = useTranslation();
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  const isVideoFile = previewFile?.type === 'file' && 
+  const isVideoFile = previewFile?.type === 'file' &&
     (previewFile.icon === '🎥' || !!previewFile.name.match(/\.(mp4|mov|avi|mkv|webm|m4v|3gp)$/i));
 
   const shouldShowModal = modals.preview && isVideoFile;
@@ -77,7 +77,7 @@ const VideoPlayerModal: React.FC = () => {
                   <span>{previewFile.lastModified}</span>
                 </div>
               </div>
-              
+
               {/* Action buttons */}
               <div className="flex items-center gap-2">
                 <Button

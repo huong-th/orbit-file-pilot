@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useRef, useEffect } from 'react';
 
 interface Track {
@@ -40,25 +39,25 @@ export const AudioPlayerProvider: React.FC<{ children: React.ReactNode }> = ({ c
   useEffect(() => {
     if (!audioRef.current) {
       audioRef.current = new Audio();
-      
+
       const audio = audioRef.current;
-      
+
       audio.addEventListener('timeupdate', () => {
         if (audio.duration) {
           setProgress((audio.currentTime / audio.duration) * 100);
         }
       });
-      
+
       audio.addEventListener('loadedmetadata', () => {
         setDuration(audio.duration);
       });
-      
+
       audio.addEventListener('ended', () => {
         setIsPlaying(false);
         setProgress(0);
       });
     }
-    
+
     return () => {
       if (audioRef.current) {
         audioRef.current.pause();
@@ -88,7 +87,7 @@ export const AudioPlayerProvider: React.FC<{ children: React.ReactNode }> = ({ c
     audio.load();
     setCurrentTrack(track);
     setProgress(0);
-    
+
     audio.play().then(() => {
       setIsPlaying(true);
     }).catch((error) => {

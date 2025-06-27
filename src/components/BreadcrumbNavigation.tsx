@@ -1,7 +1,6 @@
-
 import React from 'react';
-import { useFileManager } from '../contexts/FileManagerContext';
 import { ChevronRight, Home } from 'lucide-react';
+import { useFileManager } from '@/contexts/FileManagerContext';
 
 const BreadcrumbNavigation: React.FC = () => {
   const { getBreadcrumbs, navigateToPath } = useFileManager();

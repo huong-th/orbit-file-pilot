@@ -1,13 +1,12 @@
-
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useTranslation } from 'react-i18next';
 import { Eye, EyeOff, Mail, Lock, LogIn } from 'lucide-react';
-import { Button } from '../../ui/button';
-import { Input } from '../../ui/input';
-import { Label } from '../../ui/label';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 const createLoginSchema = (t: any) => yup.object().shape({
   email: yup
@@ -68,7 +67,7 @@ const PasswordLoginTab: React.FC<PasswordLoginTabProps> = ({
           <p className="text-sm text-destructive mt-1">{errors.email.message}</p>
         )}
       </div>
-      
+
       <div className="space-y-2">
         <Label htmlFor="password" className="text-sm font-medium">
           {t('login.password')}
@@ -102,9 +101,9 @@ const PasswordLoginTab: React.FC<PasswordLoginTabProps> = ({
       </div>
 
       <div className="text-right">
-        <Button 
+        <Button
           type="button"
-          variant="link" 
+          variant="link"
           className="text-xs text-primary p-0 h-auto hover:underline"
           onClick={onForgotPassword}
         >
@@ -112,8 +111,8 @@ const PasswordLoginTab: React.FC<PasswordLoginTabProps> = ({
         </Button>
       </div>
 
-      <Button 
-        type="submit" 
+      <Button
+        type="submit"
         className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-2.5 transition-colors"
         disabled={isLoading}
       >

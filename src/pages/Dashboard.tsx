@@ -1,33 +1,29 @@
-
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  Legend, 
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
   ResponsiveContainer,
-  LineChart,
-  Line,
   PieChart,
   Pie,
   Cell
 } from 'recharts';
-import { 
-  Folder, 
-  Image, 
-  Video, 
-  FileText, 
-  HardDrive, 
+import {
+  Folder,
+  Image,
+  Video,
+  FileText,
+  HardDrive,
   TrendingUp,
-  Calendar,
   Clock
 } from 'lucide-react';
 
@@ -200,8 +196,8 @@ const Dashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              <Progress 
-                value={(summaryData.storageUsed / summaryData.storageTotal) * 100} 
+              <Progress
+                value={(summaryData.storageUsed / summaryData.storageTotal) * 100}
                 className="h-3"
               />
               <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400">

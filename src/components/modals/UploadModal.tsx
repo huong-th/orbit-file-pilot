@@ -1,9 +1,8 @@
-
 import React, { useState } from 'react';
-import { useFileManager } from '../../contexts/FileManagerContext';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../ui/dialog';
-import { Button } from '../ui/button';
 import { Upload, FileText, X } from 'lucide-react';
+import { useFileManager } from '@/contexts/FileManagerContext';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 
 const UploadModal: React.FC = () => {
   const { modals, closeModal } = useFileManager();
@@ -24,7 +23,7 @@ const UploadModal: React.FC = () => {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-    
+
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       const files = Array.from(e.dataTransfer.files);
       setSelectedFiles(prev => [...prev, ...files]);
@@ -71,7 +70,7 @@ const UploadModal: React.FC = () => {
             Upload Files
           </DialogTitle>
         </DialogHeader>
-        
+
         <div className="space-y-4">
           {/* Drag & Drop Area */}
           <div
@@ -92,7 +91,7 @@ const UploadModal: React.FC = () => {
             <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
               Support for all file types
             </p>
-            
+
             <input
               type="file"
               multiple
@@ -144,7 +143,7 @@ const UploadModal: React.FC = () => {
             </div>
           )}
         </div>
-        
+
         <DialogFooter>
           <Button variant="outline" onClick={handleClose}>
             Cancel

@@ -1,11 +1,15 @@
-
 import React from 'react';
-import { Sun, Moon, Monitor } from 'lucide-react';
-import { Button } from '../ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
+import {clsx} from "clsx";
 import { useTheme } from 'next-themes';
+import { Sun, Moon, Monitor } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
-const DarkModeToggle: React.FC = () => {
+interface DarkModeToggleProps {
+  showText?: boolean;
+}
+
+const DarkModeToggle: React.FC<DarkModeToggleProps> = ({showText = false}) => {
   const { theme, setTheme, resolvedTheme } = useTheme();
 
   const themeOptions = [
@@ -23,10 +27,13 @@ const DarkModeToggle: React.FC = () => {
         <Button
           variant="ghost"
           size="sm"
-          className="h-10 w-10 p-0 rounded-xl hover:bg-accent/50 transition-all duration-300 hover:scale-110 z-10"
+          className={clsx({
+            'cursor-pointer rounded-lg hover:bg-accent/60 transition-colors duration-200 font-medium !h-auto': showText,
+            'h-10 w-10 p-0 rounded-xl hover:bg-accent/50 transition-all duration-300 hover:scale-110 z-10': !showText
+          })}
         >
           <CurrentIcon className="h-4 w-4" />
-          <span className="sr-only">Toggle theme</span>
+          <span className={clsx({'sr-only': !showText})}>Toggle theme</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-36">

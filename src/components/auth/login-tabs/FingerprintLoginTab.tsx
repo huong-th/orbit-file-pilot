@@ -1,8 +1,7 @@
-
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Fingerprint } from 'lucide-react';
-import { Button } from '../../ui/button';
+import { Button } from '@/components/ui/button';
 
 interface FingerprintLoginTabProps {
   onFingerprintLogin: () => Promise<void>;
@@ -24,7 +23,7 @@ const FingerprintLoginTab: React.FC<FingerprintLoginTabProps> = ({
       <p className="text-sm text-muted-foreground mb-6">
         Place your finger on the sensor to authenticate
       </p>
-      <Button 
+      <Button
         onClick={onFingerprintLogin}
         className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-2.5 transition-all hover-scale"
         disabled={isLoading}

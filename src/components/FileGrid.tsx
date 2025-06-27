@@ -1,7 +1,6 @@
-
 import React from 'react';
-import { FileItem } from '../contexts/FileManagerContext';
-import FileCard from './FileCard';
+import { FileItem } from '@/contexts/FileManagerContext';
+import FileCard from '@/components/FileCard';
 
 interface FileGridProps {
   files: FileItem[];

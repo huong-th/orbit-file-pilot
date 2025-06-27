@@ -1,11 +1,10 @@
-
 import React from 'react';
-import { FileItem } from '../contexts/FileManagerContext';
-import { useFileManager } from '../contexts/FileManagerContext';
 import { MoreHorizontal, Download, Edit, Trash2, Share, Eye, Clock, HardDrive } from 'lucide-react';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu';
-import { Button } from './ui/button';
-import { Badge } from './ui/badge';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { FileItem } from '@/contexts/FileManagerContext';
+import { useFileManager } from '@/contexts/FileManagerContext';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 interface FileListProps {
   files: FileItem[];
@@ -86,15 +85,15 @@ const FileList: React.FC<FileListProps> = ({ files }) => {
                     <div className="text-lg">{file.icon}</div>
                   )}
                 </div>
-                
+
                 {/* File Info */}
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2 mb-1">
                     <h3 className="font-semibold text-sm text-foreground truncate font-display">
                       {file.name}
                     </h3>
-                    <Badge 
-                      variant="outline" 
+                    <Badge
+                      variant="outline"
                       className="text-xs px-2 py-0.5 bg-background/60 border-border/50 text-muted-foreground hidden sm:inline-flex"
                     >
                       {getFileTypeBadge(file)}
@@ -124,8 +123,8 @@ const FileList: React.FC<FileListProps> = ({ files }) => {
 
               {/* File Type Badge (Mobile visible) */}
               <div className="w-20 hidden lg:block">
-                <Badge 
-                  variant="secondary" 
+                <Badge
+                  variant="secondary"
                   className="text-xs px-2 py-1 bg-primary/10 text-primary border-primary/20"
                 >
                   {getFileTypeBadge(file)}
@@ -135,9 +134,9 @@ const FileList: React.FC<FileListProps> = ({ files }) => {
               {/* Quick Actions */}
               <div className="w-16 flex items-center justify-end">
                 <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-x-2 group-hover:translate-x-0">
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     className="h-7 w-7 p-0 bg-background/80 backdrop-blur-sm hover:bg-primary/20 shadow-sm border border-border/30"
                     onClick={(e) => {
                       e.stopPropagation();
@@ -146,9 +145,9 @@ const FileList: React.FC<FileListProps> = ({ files }) => {
                   >
                     <Eye className="w-3.5 h-3.5" />
                   </Button>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     className="h-7 w-7 p-0 bg-background/80 backdrop-blur-sm hover:bg-primary/20 shadow-sm border border-border/30"
                     onClick={(e) => {
                       e.stopPropagation();
@@ -159,9 +158,9 @@ const FileList: React.FC<FileListProps> = ({ files }) => {
                   </Button>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         className="h-7 w-7 p-0 bg-background/80 backdrop-blur-sm hover:bg-primary/20 shadow-sm border border-border/30"
                         onClick={(e) => e.stopPropagation()}
                       >
@@ -169,7 +168,7 @@ const FileList: React.FC<FileListProps> = ({ files }) => {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="glass-subtle border border-border/50">
-                      <DropdownMenuItem 
+                      <DropdownMenuItem
                         className="cursor-pointer"
                         onClick={(e) => {
                           e.stopPropagation();
@@ -179,7 +178,7 @@ const FileList: React.FC<FileListProps> = ({ files }) => {
                         <Download className="w-4 h-4 mr-2" />
                         {file.type === 'folder' ? 'Open' : 'Download'}
                       </DropdownMenuItem>
-                      <DropdownMenuItem 
+                      <DropdownMenuItem
                         className="cursor-pointer"
                         onClick={(e) => {
                           e.stopPropagation();
@@ -189,7 +188,7 @@ const FileList: React.FC<FileListProps> = ({ files }) => {
                         <Edit className="w-4 h-4 mr-2" />
                         Rename
                       </DropdownMenuItem>
-                      <DropdownMenuItem 
+                      <DropdownMenuItem
                         className="cursor-pointer text-destructive"
                         onClick={(e) => {
                           e.stopPropagation();

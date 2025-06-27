@@ -1,27 +1,25 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useAppDispatch, useAppSelector } from '../../hooks/redux';
-import { 
-  loginWithPassword, 
-  loginWithGoogle, 
-  loginWithOTP, 
+import { useAppDispatch, useAppSelector } from '@/hooks/redux';
+import {
+  loginWithPassword,
+  loginWithOTP,
   loginWithWebAuthn,
   requestOTP,
   clearError
-} from '../../store/authSlice';
+} from '@/store/authSlice';
 import { Mail, Smartphone, Fingerprint } from 'lucide-react';
-import { Alert, AlertDescription } from '../ui/alert';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
-import { useToast } from '../../hooks/use-toast';
-import { authApi } from '../../services/authApi';
-import ForgotPasswordModal from './ForgotPasswordModal';
-import LoginHeader from './LoginHeader';
-import PasswordLoginTab from './login-tabs/PasswordLoginTab';
-import GoogleLoginTab from './login-tabs/GoogleLoginTab';
-import OTPLoginTab from './login-tabs/OTPLoginTab';
-import FingerprintLoginTab from './login-tabs/FingerprintLoginTab';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useToast } from '@/hooks/use-toast';
+import { authApi } from '@/services/authApi';
+import ForgotPasswordModal from '@/components/auth/ForgotPasswordModal';
+import LoginHeader from '@/components/auth/LoginHeader';
+import PasswordLoginTab from '@/components/auth/login-tabs/PasswordLoginTab';
+import GoogleLoginTab from '@/components/auth/login-tabs/GoogleLoginTab';
+import OTPLoginTab from '@/components/auth/login-tabs/OTPLoginTab';
+import FingerprintLoginTab from '@/components/auth/login-tabs/FingerprintLoginTab';
 
 interface LoginFormData {
   email: string;
@@ -39,9 +37,9 @@ const LoginForm: React.FC = () => {
   const dispatch = useAppDispatch();
   const { toast } = useToast();
   const { t } = useTranslation();
-  
+
   const { isLoading, error: authError } = useAppSelector((state) => state.auth);
-  
+
   const [activeTab, setActiveTab] = useState<LoginMethod>('password');
   const [otpStep, setOtpStep] = useState<'email' | 'otp'>('email');
   const [otpValue, setOtpValue] = useState('');
@@ -51,7 +49,7 @@ const LoginForm: React.FC = () => {
   const onPasswordSubmit = async (data: LoginFormData) => {
     try {
       const resultAction = await dispatch(loginWithPassword(data));
-      
+
       if (loginWithPassword.fulfilled.match(resultAction)) {
         toast({
           title: t('login.success.loginSuccess'),
@@ -77,7 +75,7 @@ const LoginForm: React.FC = () => {
   const onOTPEmailSubmit = async (data: OTPEmailData) => {
     try {
       const resultAction = await dispatch(requestOTP(data.email));
-      
+
       if (requestOTP.fulfilled.match(resultAction)) {
         setOtpEmail(data.email);
         setOtpStep('otp');
@@ -106,7 +104,7 @@ const LoginForm: React.FC = () => {
     if (value.length === 6) {
       try {
         const resultAction = await dispatch(loginWithOTP({ email: otpEmail, otp: value }));
-        
+
         if (loginWithOTP.fulfilled.match(resultAction)) {
           toast({
             title: t('login.success.loginSuccess'),
@@ -158,10 +156,10 @@ const LoginForm: React.FC = () => {
 
       // For demo, we'll use a placeholder email - in real app you'd collect this
       const email = 'demo@example.com';
-      
+
       // Generate challenge
       const challenge = await authApi.generateWebAuthnChallenge(email, 'authenticate');
-      
+
       // Get credential from browser
       const credential = await navigator.credentials.get({
         publicKey: {
@@ -178,7 +176,7 @@ const LoginForm: React.FC = () => {
           options: { type: 'authenticate' },
           credential
         }));
-        
+
         if (loginWithWebAuthn.fulfilled.match(resultAction)) {
           toast({
             title: t('login.success.fingerprintSuccess'),
@@ -252,6 +250,7 @@ const LoginForm: React.FC = () => {
               </TabsTrigger>
             </TabsList>
 
+            {/* Password Login */}
             <TabsContent value="password" className="space-y-6 animate-fade-in">
               <PasswordLoginTab
                 onSubmit={onPasswordSubmit}
@@ -260,6 +259,7 @@ const LoginForm: React.FC = () => {
               />
             </TabsContent>
 
+            {/* Google Login */}
             <TabsContent value="google" className="space-y-6 animate-fade-in">
               <GoogleLoginTab
                 onGoogleLogin={handleGoogleLogin}
@@ -267,6 +267,7 @@ const LoginForm: React.FC = () => {
               />
             </TabsContent>
 
+            {/* OTP Login */}
             <TabsContent value="otp" className="space-y-6 animate-fade-in">
               <OTPLoginTab
                 otpStep={otpStep}
@@ -279,6 +280,7 @@ const LoginForm: React.FC = () => {
               />
             </TabsContent>
 
+            {/* Fingerprint Login */}
             <TabsContent value="fingerprint" className="space-y-6 animate-fade-in">
               <FingerprintLoginTab
                 onFingerprintLogin={handleFingerprintLogin}
@@ -291,7 +293,7 @@ const LoginForm: React.FC = () => {
           <div className="mt-6 text-center">
             <p className="text-xs text-muted-foreground">
               Don't have an account?{' '}
-              <button 
+              <button
                 type="button"
                 className="text-xs text-primary p-0 h-auto hover:underline cursor-pointer"
                 onClick={() => navigate('/register')}
@@ -303,9 +305,9 @@ const LoginForm: React.FC = () => {
         </div>
       </div>
 
-      <ForgotPasswordModal 
-        open={forgotPasswordOpen} 
-        onOpenChange={setForgotPasswordOpen} 
+      <ForgotPasswordModal
+        open={forgotPasswordOpen}
+        onOpenChange={setForgotPasswordOpen}
       />
     </>
   );

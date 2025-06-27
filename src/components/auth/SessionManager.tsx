@@ -1,7 +1,6 @@
-
 import React, { useEffect } from 'react';
-import { useAppDispatch, useAppSelector } from '../../hooks/redux';
-import { getUserProfile, setUser, updateTokens } from '../../store/authSlice';
+import { useAppDispatch, useAppSelector } from '@/hooks/redux';
+import { getUserProfile, setUser, updateTokens } from '@/store/authSlice';
 import Cookies from 'js-cookie';
 
 interface SessionManagerProps {
@@ -16,7 +15,7 @@ const SessionManager: React.FC<SessionManagerProps> = ({ children }) => {
     const initializeSession = async () => {
       const cookieAccessToken = Cookies.get('access_token');
       const cookieRefreshToken = Cookies.get('refresh_token');
-      
+
       // If we have a token in cookies but not in Redux state, restore it
       if (cookieAccessToken && !isAuthenticated) {
         dispatch(updateTokens({
@@ -24,7 +23,7 @@ const SessionManager: React.FC<SessionManagerProps> = ({ children }) => {
           refresh_token: cookieRefreshToken,
         }));
       }
-      
+
       // If we're authenticated but don't have user data, fetch it
       if ((isAuthenticated || cookieAccessToken) && !user) {
         try {

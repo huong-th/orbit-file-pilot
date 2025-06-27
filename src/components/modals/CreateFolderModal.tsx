@@ -1,10 +1,9 @@
-
 import React, { useState } from 'react';
-import { useFileManager } from '../../contexts/FileManagerContext';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../ui/dialog';
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
-import { Label } from '../ui/label';
+import { useFileManager } from '@/contexts/FileManagerContext';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { FolderPlus } from 'lucide-react';
 
 const CreateFolderModal: React.FC = () => {
@@ -35,7 +34,7 @@ const CreateFolderModal: React.FC = () => {
             Create New Folder
           </DialogTitle>
         </DialogHeader>
-        
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="folder-name">Folder Name</Label>
@@ -49,7 +48,7 @@ const CreateFolderModal: React.FC = () => {
               autoFocus
             />
           </div>
-          
+
           <DialogFooter>
             <Button
               type="button"

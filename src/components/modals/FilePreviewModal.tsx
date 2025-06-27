@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useFileManager } from '../../contexts/FileManagerContext';
@@ -44,7 +43,7 @@ const FilePreviewModal: React.FC = () => {
   const [preloadedImages, setPreloadedImages] = useState<{ [key: string]: string }>({});
 
   // Get list of image files from current view
-  const imageFiles = displayedFiles.filter(file => 
+  const imageFiles = displayedFiles.filter(file =>
     file.type === 'file' && (file.icon === '🖼️' || file.name.match(/\.(jpg|jpeg|png|gif|bmp|webp)$/i))
   );
 
@@ -75,7 +74,7 @@ const FilePreviewModal: React.FC = () => {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (!modals.preview) return;
-      
+
       switch (event.key) {
         case 'ArrowLeft':
           event.preventDefault();
@@ -147,13 +146,13 @@ const FilePreviewModal: React.FC = () => {
   if (!previewFile) return null;
 
   const isImageFile = previewFile.type === 'file' && (previewFile.icon === '🖼️' || !!previewFile.name.match(/\.(jpg|jpeg|png|gif|bmp|webp)$/i));
-  const isVideoFile = previewFile?.type === 'file' && 
+  const isVideoFile = previewFile?.type === 'file' &&
     (previewFile.icon === '🎥' || !!previewFile.name.match(/\.(mp4|mov|avi|mkv|webm|m4v|3gp)$/i));
-  
+
   // Check for document files
-  const isPDFFile = previewFile?.type === 'file' && 
+  const isPDFFile = previewFile?.type === 'file' &&
     (previewFile.icon === '📄' || !!previewFile.name.match(/\.pdf$/i));
-  const isOfficeFile = previewFile?.type === 'file' && 
+  const isOfficeFile = previewFile?.type === 'file' &&
     !!previewFile.name.match(/\.(doc|docx|xls|xlsx|ppt|pptx)$/i);
   const isDocumentFile = isPDFFile || isOfficeFile;
 
@@ -191,31 +190,23 @@ const FilePreviewModal: React.FC = () => {
                 </span>
               )}
             </DialogTitle>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleClose}
-              className="text-muted-foreground hover:text-foreground"
-            >
-              <X className="w-4 h-4" />
-            </Button>
           </div>
         </DialogHeader>
-        
+
         <div className="space-y-6">
           {/* File Preview Area */}
           <div className="relative bg-gradient-to-br from-muted/20 to-muted/10 rounded-xl flex items-center justify-center border border-border/40 overflow-hidden">
             {isImageFile ? (
               <>
                 <div className="aspect-video w-full flex items-center justify-center">
-                  <img 
+                  <img
                     src={currentImageUrl}
                     alt={previewFile.name}
                     className="max-w-full max-h-full object-contain rounded-lg transition-all duration-300 ease-out"
                     loading="lazy"
                   />
                 </div>
-                
+
                 {/* Navigation Arrows - Only show if there are multiple images */}
                 {totalImages > 1 && (
                   <>
@@ -227,7 +218,7 @@ const FilePreviewModal: React.FC = () => {
                     >
                       <ChevronLeft className="w-5 h-5" />
                     </Button>
-                    
+
                     <Button
                       variant="ghost"
                       size="sm"

@@ -1,12 +1,11 @@
-
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { useFileManager } from '../contexts/FileManagerContext';
-import { Files, Image, FileText, Video, Music, MoreHorizontal, Share, Star, Trash2, BarChart, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
-import FolderTreeSidebar from './FolderTreeSidebar';
-import { Button } from './ui/button';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
+import { Files, Image, FileText, Video, Music, MoreHorizontal, Share, Star, Trash2, BarChart, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import FolderTreeSidebar from '@/components/FolderTreeSidebar';
+import { useFileManager } from '@/contexts/FileManagerContext';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -40,11 +39,11 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, collapsed, onCollap
     if (categoryId === 'dashboard') {
       return; // Navigation handled by Link
     }
-    
+
     if (filter) {
       setCurrentFilter(filter);
     }
-    
+
     // If not on root folder, navigate to root when changing filters
     if (currentFolder !== 'root') {
       setCurrentFolder('root');
@@ -68,18 +67,18 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, collapsed, onCollap
         {isActive && !collapsed && (
           <div className="absolute left-1 top-1/2 transform -translate-y-1/2 w-1.5 h-1.5 bg-primary rounded-full" />
         )}
-        
+
         {/* Active indicator for collapsed mode */}
         {isActive && collapsed && (
           <div className="absolute inset-0 bg-primary/20 rounded-lg" />
         )}
-        
-        <item.icon 
+
+        <item.icon
           className={`transition-transform duration-200 ${
             collapsed ? 'w-5 h-5' : 'w-5 h-5'
           } ${
             isActive ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground'
-          }`} 
+          }`}
         />
         {!collapsed && (
           <span className={`text-sm font-medium transition-all duration-200 ${
@@ -136,7 +135,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, collapsed, onCollap
                 </div>
               </div>
             )}
-            
+
             {/* Collapse toggle - only show on desktop */}
             <div className="hidden lg:block mt-3">
               <Button
@@ -155,7 +154,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, collapsed, onCollap
               </Button>
             </div>
           </div>
-          
+
           {/* Content - Scrollable */}
           <div className="flex-1 overflow-y-auto sidebar-scrollbar lg:sidebar-no-scroll">
             <div className={`${collapsed ? 'py-4 px-1 space-y-4' : 'p-4 space-y-6'}`}>
@@ -172,7 +171,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, collapsed, onCollap
                     const hasTypeParam = location.search.includes(`type=${category.filter}`);
                     const isRootWithCorrectFilter = location.pathname === '/' && currentFilter === category.filter;
                     const isActive = !isInFolder && (isRootWithCorrectFilter || hasTypeParam);
-                    
+
                     return (
                       <CategoryItem
                         key={category.id}
@@ -193,10 +192,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, collapsed, onCollap
                 )}
                 <div className={collapsed ? 'space-y-1' : 'space-y-1'}>
                   {actionItems.map((item) => {
-                    const isActive = item.id === 'dashboard' 
+                    const isActive = item.id === 'dashboard'
                       ? location.pathname === '/dashboard'
                       : !location.pathname.startsWith('/folder') && location.pathname === '/' && currentFilter === item.filter;
-                    
+
                     return (
                       <CategoryItem
                         key={item.id}

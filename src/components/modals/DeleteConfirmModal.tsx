@@ -1,9 +1,8 @@
-
 import React from 'react';
-import { useFileManager } from '../../contexts/FileManagerContext';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../ui/dialog';
-import { Button } from '../ui/button';
 import { AlertTriangle } from 'lucide-react';
+import { useFileManager } from '@/contexts/FileManagerContext';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../ui/dialog';
+import { Button } from '@/components/ui/button';
 
 const DeleteConfirmModal: React.FC = () => {
   const { modals, closeModal, deleteItems } = useFileManager();
@@ -32,7 +31,7 @@ const DeleteConfirmModal: React.FC = () => {
             Delete {isMultiple ? 'Items' : deleteItems[0].type === 'folder' ? 'Folder' : 'File'}
           </DialogTitle>
         </DialogHeader>
-        
+
         <div className="space-y-4">
           <p className="text-gray-700 dark:text-gray-300">
             Are you sure you want to delete{' '}
@@ -57,7 +56,7 @@ const DeleteConfirmModal: React.FC = () => {
             </p>
           </div>
         </div>
-        
+
         <DialogFooter>
           <Button
             type="button"

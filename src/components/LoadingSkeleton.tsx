@@ -1,14 +1,14 @@
 import React from 'react';
-import { Skeleton } from './ui/skeleton';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface LoadingSkeletonProps {
   count?: number;
   viewMode?: 'grid' | 'list';
 }
 
-const LoadingSkeleton: React.FC<LoadingSkeletonProps> = ({ 
-  count = 6, 
-  viewMode = 'grid' 
+const LoadingSkeleton: React.FC<LoadingSkeletonProps> = ({
+  count = 6,
+  viewMode = 'grid'
 }) => {
   if (viewMode === 'list') {
     return (

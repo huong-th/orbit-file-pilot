@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Plus, Upload, FolderPlus, X } from 'lucide-react';
 import { Button } from './ui/button';
@@ -29,7 +28,7 @@ const FloatingActionButton: React.FC = () => {
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
-        menuRef.current && 
+        menuRef.current &&
         !menuRef.current.contains(event.target as Node) &&
         buttonRef.current &&
         !buttonRef.current.contains(event.target as Node)
@@ -93,7 +92,7 @@ const FloatingActionButton: React.FC = () => {
               ref={buttonRef}
               onClick={toggleMenu}
               size="lg"
-              className={`h-14 w-14 rounded-2xl gradient-primary hover:scale-110 text-white shadow-xl hover:shadow-2xl transition-all duration-300 border-0 hover-glow ${
+              className={`h-14 w-14 !px-0 rounded-2xl gradient-primary hover:scale-110 text-white shadow-xl hover:shadow-2xl transition-all duration-300 border-0 hover-glow ${
                 isMenuOpen ? 'rotate-45' : 'rotate-0'
               }`}
             >

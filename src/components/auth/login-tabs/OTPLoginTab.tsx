@@ -1,14 +1,13 @@
-
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useTranslation } from 'react-i18next';
 import { Mail, Smartphone } from 'lucide-react';
-import { Button } from '../../ui/button';
-import { Input } from '../../ui/input';
-import { Label } from '../../ui/label';
-import { InputOTP, InputOTPGroup, InputOTPSlot } from '../../ui/input-otp';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
 
 const createOtpEmailSchema = (t: any) => yup.object().shape({
   email: yup
@@ -63,7 +62,7 @@ const OTPLoginTab: React.FC<OTPLoginTabProps> = ({
             Enter your email to receive a 6-digit code
           </p>
         </div>
-        
+
         <div className="space-y-2">
           <Label htmlFor="otp-email" className="text-sm font-medium">
             Email Address
@@ -83,8 +82,8 @@ const OTPLoginTab: React.FC<OTPLoginTabProps> = ({
           )}
         </div>
 
-        <Button 
-          type="submit" 
+        <Button
+          type="submit"
           className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 transition-colors"
           disabled={isLoading}
         >
@@ -142,16 +141,16 @@ const OTPLoginTab: React.FC<OTPLoginTabProps> = ({
       </div>
 
       <div className="flex gap-2">
-        <Button 
+        <Button
           onClick={onResetOTPFlow}
-          variant="outline" 
+          variant="outline"
           className="flex-1"
         >
           Back
         </Button>
-        <Button 
+        <Button
           onClick={() => onOTPEmailSubmit({ email: otpEmail })}
-          variant="outline" 
+          variant="outline"
           className="flex-1"
         >
           Resend OTP

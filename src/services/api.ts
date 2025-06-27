@@ -1,8 +1,7 @@
-
 import axios, { AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import Cookies from 'js-cookie';
-import { store } from '../store/store';
-import { logout } from '../store/authSlice';
+import { store } from '@/store/store';
+import { logout } from '@/store/authSlice';
 
 const API_BASE_URL = 'http://localhost:3000';
 
@@ -38,7 +37,7 @@ api.interceptors.response.use(
       originalRequest._retry = true;
 
       const refreshToken = Cookies.get('refresh_token');
-      
+
       if (refreshToken) {
         try {
           // Try to refresh the token
@@ -63,18 +62,18 @@ api.interceptors.response.use(
         } catch (refreshError) {
           // Refresh failed, logout the user
           store.dispatch(logout());
-          
+
           // Redirect to login if not already there
           if (window.location.pathname !== '/login') {
             window.location.href = '/login';
           }
-          
+
           return Promise.reject(refreshError);
         }
       } else {
         // No refresh token, logout the user
         store.dispatch(logout());
-        
+
         if (window.location.pathname !== '/login') {
           window.location.href = '/login';
         }

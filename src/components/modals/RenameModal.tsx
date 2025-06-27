@@ -1,11 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
-import { useFileManager } from '../../contexts/FileManagerContext';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../ui/dialog';
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
-import { Label } from '../ui/label';
 import { Edit } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { useFileManager } from '@/contexts/FileManagerContext';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 
 const RenameModal: React.FC = () => {
   const { modals, closeModal, renameItem } = useFileManager();
@@ -42,7 +41,7 @@ const RenameModal: React.FC = () => {
             Rename {renameItem.type === 'folder' ? 'Folder' : 'File'}
           </DialogTitle>
         </DialogHeader>
-        
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
             <span className="text-2xl">{renameItem.icon}</span>
@@ -63,7 +62,7 @@ const RenameModal: React.FC = () => {
               autoFocus
             />
           </div>
-          
+
           <DialogFooter>
             <Button
               type="button"

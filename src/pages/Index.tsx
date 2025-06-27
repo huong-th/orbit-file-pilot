@@ -1,7 +1,6 @@
-
 import React from 'react';
-import MainContent from '../components/MainContent';
-import { AudioPlayerProvider } from '../contexts/AudioPlayerContext';
+import MainContent from '@/components/MainContent';
+import { AudioPlayerProvider } from '@/contexts/AudioPlayerContext';
 
 const Index = () => {
   return (

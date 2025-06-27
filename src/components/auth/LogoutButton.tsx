@@ -1,10 +1,10 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LogOut } from 'lucide-react';
-import { Button } from '../ui/button';
-import { useAppDispatch } from '../../hooks/redux';
-import { logout } from '../../store/authSlice';
-import { useToast } from '../../hooks/use-toast';
+import { Button } from '@/components/ui/button';
+import { useAppDispatch } from '@/hooks/redux';
+import { logout } from '@/store/authSlice';
+import { useToast } from '@/hooks/use-toast';
 
 interface LogoutButtonProps {
   variant?: 'default' | 'ghost' | 'outline';
@@ -13,11 +13,11 @@ interface LogoutButtonProps {
   showText?: boolean;
 }
 
-const LogoutButton: React.FC<LogoutButtonProps> = ({ 
-  variant = 'ghost', 
+const LogoutButton: React.FC<LogoutButtonProps> = ({
+  variant = 'ghost',
   size = 'sm',
   showIcon = true,
-  showText = true 
+  showText = true
 }) => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -25,12 +25,12 @@ const LogoutButton: React.FC<LogoutButtonProps> = ({
 
   const handleLogout = () => {
     dispatch(logout());
-    
+
     toast({
       title: "Logged out successfully",
       description: "You have been logged out of your account",
     });
-    
+
     navigate('/login');
   };
 
@@ -39,7 +39,7 @@ const LogoutButton: React.FC<LogoutButtonProps> = ({
       variant={variant}
       size={size}
       onClick={handleLogout}
-      className="flex items-center gap-2"
+      className="flex items-center gap-2 !h-auto"
     >
       {showIcon && <LogOut className="w-4 h-4" />}
       {showText && "Logout"}

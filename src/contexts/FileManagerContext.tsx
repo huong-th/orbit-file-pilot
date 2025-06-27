@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
@@ -206,7 +205,7 @@ const createNestedFolders = (): Folder[] => {
 // Generate files for different folders
 const generateNestedFiles = (): FileItem[] => {
   const files: FileItem[] = [];
-  
+
   // Root level files and folders (folders are created as FileItems for display)
   const mockFolders = createNestedFolders();
   const rootFolders = ['documents', 'pictures', 'videos', 'music', 'downloads'];
@@ -234,17 +233,17 @@ const generateNestedFiles = (): FileItem[] => {
       lastModified: '2 hours ago',
       icon: '📄',
       parent: 'root',
-      path: ''
+      path: 'https://file-examples.com/storage/fe0dfd4118684df6f98d216/2017/10/file-example_PDF_1MB.pdf'
     },
     {
       id: 'file-2',
-      name: 'README.txt',
+      name: 'README.docx',
       type: 'file',
       size: '1.2 KB',
       lastModified: '1 day ago',
       icon: '📝',
       parent: 'root',
-      path: ''
+      path: 'https://file-examples.com/storage/fe0dfd4118684df6f98d216/2017/02/file-sample_1MB.doc'
     }
   );
 
@@ -947,7 +946,7 @@ const mockFiles: FileItem[] = generateNestedFiles();
 export const FileManagerProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  
+
   const [files] = useState<FileItem[]>(mockFiles);
   const [folders] = useState<Folder[]>(mockFolders);
   const [currentFolder, setCurrentFolder] = useState('root');
@@ -980,7 +979,7 @@ export const FileManagerProvider: React.FC<{ children: ReactNode }> = ({ childre
     if (pathname.startsWith('/folder/')) {
       const pathSegments = pathname.replace('/folder/', '').split('/').filter(Boolean);
       setCurrentPath(pathSegments);
-      
+
       // Find the folder that matches this path
       const targetPath = pathSegments.join('/');
       const targetFolder = folders.find(f => f.path === targetPath);
@@ -1022,7 +1021,7 @@ export const FileManagerProvider: React.FC<{ children: ReactNode }> = ({ childre
   const navigateToPath = (pathArray: string[]) => {
     const targetPath = pathArray.join('/');
     const targetFolder = folders.find(f => f.path === targetPath);
-    
+
     if (targetFolder) {
       setCurrentFolder(targetFolder.id);
       setCurrentPath(pathArray);
@@ -1037,11 +1036,11 @@ export const FileManagerProvider: React.FC<{ children: ReactNode }> = ({ childre
 
   const getBreadcrumbs = () => {
     const breadcrumbs: { id: string; name: string; path: string[] }[] = [];
-    
+
     for (let i = 0; i <= currentPath.length; i++) {
       const pathSegments = currentPath.slice(0, i);
       const pathString = pathSegments.join('/');
-      
+
       if (i === 0) {
         // Root
         breadcrumbs.push({
@@ -1060,7 +1059,7 @@ export const FileManagerProvider: React.FC<{ children: ReactNode }> = ({ childre
         }
       }
     }
-    
+
     return breadcrumbs;
   };
 
@@ -1076,9 +1075,9 @@ export const FileManagerProvider: React.FC<{ children: ReactNode }> = ({ childre
   const getFilteredFiles = () => {
     return files.filter(file => {
       const matchesFolder = file.parent === currentFolder;
-      const matchesSearch = searchQuery === '' || 
+      const matchesSearch = searchQuery === '' ||
         file.name.toLowerCase().includes(searchQuery.toLowerCase());
-      
+
       // Apply type filter
       let matchesFilter = true;
       if (currentFilter !== 'all') {
@@ -1086,38 +1085,38 @@ export const FileManagerProvider: React.FC<{ children: ReactNode }> = ({ childre
         if (file.type === 'folder') {
           return false;
         }
-        
+
         const getFileType = (file: FileItem) => {
           const extension = file.name.split('.').pop()?.toLowerCase();
-          
+
           // Pictures/Images
           if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg', 'tiff', 'ico'].includes(extension || '')) {
             return 'pictures';
           }
-          
+
           // Videos
           if (['mp4', 'avi', 'mov', 'wmv', 'flv', 'mkv', 'webm', 'm4v', '3gp'].includes(extension || '')) {
             return 'videos';
           }
-          
+
           // Documents
           if (['pdf', 'doc', 'docx', 'txt', 'rtf', 'odt', 'xls', 'xlsx', 'csv', 'ppt', 'pptx', 'odp', 'ods'].includes(extension || '')) {
             return 'documents';
           }
-          
+
           // Music/Audio
           if (['mp3', 'wav', 'flac', 'aac', 'ogg', 'm4a', 'wma'].includes(extension || '')) {
             return 'music';
           }
-          
+
           // Everything else goes to "other"
           return 'other';
         };
-        
+
         const fileType = getFileType(file);
         matchesFilter = fileType === currentFilter;
       }
-      
+
       return matchesFolder && matchesSearch && matchesFilter;
     });
   };
@@ -1125,16 +1124,16 @@ export const FileManagerProvider: React.FC<{ children: ReactNode }> = ({ childre
   // Load more files function
   const loadMoreFiles = async () => {
     if (isLoading || !hasMore) return;
-    
+
     setIsLoading(true);
-    
+
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 800));
-    
+
     const filteredFiles = getFilteredFiles();
     const nextPage = currentPage + 1;
     const newFiles = filteredFiles.slice(0, (nextPage + 1) * PAGE_SIZE);
-    
+
     setDisplayedFiles(newFiles);
     setCurrentPage(nextPage);
     setHasMore(newFiles.length < filteredFiles.length);
@@ -1145,7 +1144,7 @@ export const FileManagerProvider: React.FC<{ children: ReactNode }> = ({ childre
   const resetPagination = () => {
     const filteredFiles = getFilteredFiles();
     const initialFiles = filteredFiles.slice(0, PAGE_SIZE);
-    
+
     setDisplayedFiles(initialFiles);
     setCurrentPage(0);
     setHasMore(initialFiles.length < filteredFiles.length);
@@ -1161,8 +1160,8 @@ export const FileManagerProvider: React.FC<{ children: ReactNode }> = ({ childre
   const searchFiles = async (query: string): Promise<FileItem[]> => {
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 300));
-    
-    return files.filter(file => 
+
+    return files.filter(file =>
       file.name.toLowerCase().includes(query.toLowerCase())
     );
   };

@@ -1,20 +1,25 @@
 import React from 'react';
+import {clsx} from "clsx";
+import { Globe } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { Button } from './ui/button';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from './ui/dropdown-menu';
-import { Globe } from 'lucide-react';
+} from '@/components/ui/dropdown-menu';
 
 const languages = [
   { code: 'en', name: 'English' },
   { code: 'vi', name: 'Tiếng Việt' },
 ];
 
-const LanguageSwitcher: React.FC = () => {
+interface LanguageSwitcherProps {
+  showText?: boolean;
+}
+
+const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({showText = false}) => {
   const { i18n } = useTranslation();
 
   const handleLanguageChange = (languageCode: string) => {
@@ -32,10 +37,13 @@ const LanguageSwitcher: React.FC = () => {
         <Button
           variant="ghost"
           size="sm"
-          className="h-8 w-8 p-0 hover:bg-muted/50"
+          className={clsx({
+            'cursor-pointer rounded-lg hover:bg-accent/60 transition-colors duration-200 font-medium !h-auto': showText,
+            'h-10 w-10 p-0 rounded-xl hover:bg-accent/50 transition-all duration-300 hover:scale-110 z-10': !showText
+          })}
         >
           <Globe className="h-4 w-4" />
-          <span className="sr-only">Switch language</span>
+          <span className={clsx({'sr-only': !showText})}>Switch language</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="min-w-[140px]">

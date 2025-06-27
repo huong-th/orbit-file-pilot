@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { useFileManager } from '../contexts/FileManagerContext';
-import { ChevronRight, ChevronDown, Folder } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
-import { Button } from './ui/button';
+import { ChevronRight, ChevronDown, Folder } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useFileManager } from '@/contexts/FileManagerContext';
 
 const FolderTreeSidebar: React.FC = () => {
   const { folders, currentFolder, navigateToFolder } = useFileManager();
@@ -41,10 +41,10 @@ const FolderTreeSidebar: React.FC = () => {
   };
 
   const renderFolderTree = (parentId: string = 'root', level: number = 0) => {
-    const childFolders = folders.filter(folder => 
+    const childFolders = folders.filter(folder =>
       folder.parent === parentId && folder.id !== 'root'
     );
-    
+
     if (childFolders.length === 0) return null;
 
     return (
@@ -53,10 +53,10 @@ const FolderTreeSidebar: React.FC = () => {
           const hasChildren = folder.children.length > 0;
           const isExpanded = expandedFolders.has(folder.id);
           const isActive = currentFolder === folder.id;
-          
+
           return (
             <div key={folder.id} className="w-full">
-              <div 
+              <div
                 className={`flex items-center w-full group rounded-lg transition-all duration-200 relative ${
                   isActive 
                     ? 'bg-primary/10 text-primary shadow-sm border border-primary/20' 
@@ -85,7 +85,7 @@ const FolderTreeSidebar: React.FC = () => {
                 ) : (
                   <div className="w-6 mr-1" />
                 )}
-                
+
                 <button
                   onClick={() => handleFolderClick(folder.id)}
                   className="flex items-center gap-2 flex-1 py-2 px-2 text-left text-sm font-medium rounded-md transition-all duration-200 hover:scale-[1.01]"
@@ -98,9 +98,9 @@ const FolderTreeSidebar: React.FC = () => {
                   }`}>{folder.name}</span>
                 </button>
               </div>
-              
+
               {hasChildren && (
-                <div 
+                <div
                   className={`overflow-hidden transition-all duration-300 ease-in-out ${
                     isExpanded 
                       ? 'max-h-96 opacity-100 transform translate-y-0' 

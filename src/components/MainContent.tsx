@@ -1,26 +1,25 @@
-
 import React from 'react';
-import { useTranslation } from 'react-i18next';
-import { useFileManager } from '../contexts/FileManagerContext';
-import FileGrid from './FileGrid';
-import FileList from './FileList';
-import MusicPlaylist from './MusicPlaylist';
-import BreadcrumbNavigation from './BreadcrumbNavigation';
-import LoadingSkeleton from './LoadingSkeleton';
-import { useInfiniteScroll } from '../hooks/useInfiniteScroll';
 import { Loader } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import FileGrid from '@/components/FileGrid';
+import FileList from '@/components/FileList';
+import MusicPlaylist from '@/components/MusicPlaylist';
+import LoadingSkeleton from '@/components/LoadingSkeleton';
+import BreadcrumbNavigation from '@/components/BreadcrumbNavigation';
+import { useFileManager } from '@/contexts/FileManagerContext';
+import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 
 interface MainContentProps {
   sidebarOpen: boolean;
 }
 
 const MainContent: React.FC<MainContentProps> = ({ sidebarOpen }) => {
-  const { 
-    viewMode, 
-    displayedFiles, 
-    isLoading, 
-    hasMore, 
-    loadMoreFiles, 
+  const {
+    viewMode,
+    displayedFiles,
+    isLoading,
+    hasMore,
+    loadMoreFiles,
     searchQuery,
     currentFilter
   } = useFileManager();
@@ -40,7 +39,7 @@ const MainContent: React.FC<MainContentProps> = ({ sidebarOpen }) => {
         <div className="p-8 pb-6 flex-shrink-0">
           <BreadcrumbNavigation />
         </div>
-        
+
         <div className="flex-1 overflow-auto px-8 pb-8 min-h-0" id="scroll-container">
           <div className="h-full min-h-96 rounded-2xl border-2 border-dashed border-border/30 bg-card/50 backdrop-blur-sm transition-all duration-300 hover:border-primary/40 hover:bg-primary/5 hover:shadow-lg group">
             <div className="p-8 h-full">
@@ -57,7 +56,7 @@ const MainContent: React.FC<MainContentProps> = ({ sidebarOpen }) => {
       <div className="p-8 pb-6 flex-shrink-0">
         <BreadcrumbNavigation />
       </div>
-      
+
       <div className="flex-1 overflow-auto px-8 pb-8 min-h-0" id="scroll-container">
         {/* Modern drag and drop area */}
         <div className="h-full min-h-96 rounded-2xl border-2 border-dashed border-border/30 bg-card/50 backdrop-blur-sm transition-all duration-300 hover:border-primary/40 hover:bg-primary/5 hover:shadow-lg group">
@@ -72,7 +71,7 @@ const MainContent: React.FC<MainContentProps> = ({ sidebarOpen }) => {
                   {searchQuery ? t('fileManager.noSearchResults') : t('fileManager.emptyFolder')}
                 </h3>
                 <p className="text-sm text-center max-w-md leading-relaxed">
-                  {searchQuery 
+                  {searchQuery
                     ? t('fileManager.noSearchResultsDescription')
                     : t('fileManager.emptyFolderDescription')
                   }

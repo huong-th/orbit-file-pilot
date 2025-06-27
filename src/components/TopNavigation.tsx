@@ -1,16 +1,14 @@
-
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { useFileManager } from '../contexts/FileManagerContext';
-import { Menu, Search, Upload, Grid, List, User, Settings } from 'lucide-react';
-import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../components/ui/dropdown-menu';
-import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar';
-import { useTheme } from 'next-themes';
-import LanguageSwitcher from './LanguageSwitcher';
-import LogoutButton from './auth/LogoutButton';
-import DarkModeToggle from './auth/DarkModeToggle';
+import { Menu, Search, Grid, List, User, Settings } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import DarkModeToggle from '@/components/DarkModeToggle';
+import LogoutButton from '@/components/auth/LogoutButton';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { useFileManager } from '@/contexts/FileManagerContext';
 
 interface TopNavigationProps {
   onSidebarToggle: () => void;
@@ -19,8 +17,7 @@ interface TopNavigationProps {
 }
 
 const TopNavigation: React.FC<TopNavigationProps> = ({ onSidebarToggle, onSidebarCollapse, sidebarCollapsed }) => {
-  const { searchQuery, setSearchQuery, viewMode, setViewMode, openModal } = useFileManager();
-  const { theme, setTheme } = useTheme();
+  const { searchQuery, setSearchQuery, viewMode, setViewMode } = useFileManager();
   const { t } = useTranslation();
 
   return (
@@ -35,7 +32,7 @@ const TopNavigation: React.FC<TopNavigationProps> = ({ onSidebarToggle, onSideba
         >
           <Menu className="w-5 h-5" />
         </Button>
-        
+
         {/* Desktop sidebar collapse toggle */}
         <Button
           variant="ghost"
@@ -116,45 +113,57 @@ const TopNavigation: React.FC<TopNavigationProps> = ({ onSidebarToggle, onSideba
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-56 glass-card border border-border/40 shadow-xl rounded-2xl p-2" align="end">
-            <div className="px-3 py-3 border-b border-border/30">
+            <div className="px-3 py-3">
               <p className="text-sm font-semibold text-foreground">{t('navigation.user.profile')}</p>
               <p className="text-xs text-muted-foreground">{t('navigation.user.email')}</p>
             </div>
             <DropdownMenuSeparator />
-            
+
             {/* Mobile-only controls */}
             <div className="md:hidden">
               {/* View Mode Toggle */}
-              <DropdownMenuItem 
-                className="cursor-pointer rounded-lg hover:bg-accent/60 transition-colors duration-200 font-medium" 
+              <DropdownMenuItem
+                className="cursor-pointer rounded-lg hover:bg-accent/60 transition-colors duration-200 font-medium"
                 onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
               >
-                {viewMode === 'grid' ? <List className="w-4 h-4 mr-2" /> : <Grid className="w-4 h-4 mr-2" />}
-                {viewMode === 'grid' ? t('navigation.user.listView') : t('navigation.user.gridView')}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="flex items-center gap-2 !h-auto"
+                >
+                  {viewMode === 'grid' ? <List className="w-4 h-4" /> : <Grid className="w-4 h-4" />}
+                  {viewMode === 'grid' ? t('navigation.user.listView') : t('navigation.user.gridView')}
+                </Button>
               </DropdownMenuItem>
-              
+              <DropdownMenuSeparator />
+
               {/* Theme Toggle - Mobile only */}
-              <div className="px-3 py-2">
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">{t('navigation.user.theme')}</p>
-                <DarkModeToggle />
+              <div className="relative flex select-none items-center px-2 py-1.5 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 cursor-pointer rounded-lg hover:bg-accent/60 transition-colors duration-200 font-medium">
+                <DarkModeToggle showText={true} />
               </div>
-              
+              <DropdownMenuSeparator />
+
               {/* Language Switcher */}
-              <div className="px-3 py-2">
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">{t('navigation.user.language')}</p>
-                <LanguageSwitcher />
+              <div className="relative flex select-none items-center px-2 py-1.5 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 cursor-pointer rounded-lg hover:bg-accent/60 transition-colors duration-200 font-medium">
+                <LanguageSwitcher showText={true} />
               </div>
               <DropdownMenuSeparator />
             </div>
-            
+
             <DropdownMenuItem className="cursor-pointer rounded-lg hover:bg-accent/60 transition-colors duration-200 font-medium">
-              <Settings className="w-4 h-4 mr-2" />
-              {t('navigation.user.settings')}
+              <Button
+                variant="ghost"
+                size="sm"
+                className="flex items-center gap-2 !h-auto"
+              >
+                <Settings className="w-4 h-4" />
+                {t('navigation.user.settings')}
+              </Button>
             </DropdownMenuItem>
-            <DropdownMenuSeparator className="my-2" />
-            <div className="px-2">
+            <DropdownMenuSeparator />
+            <DropdownMenuItem className="cursor-pointer rounded-lg hover:bg-accent/60 transition-colors duration-200 font-medium">
               <LogoutButton variant="ghost" size="sm" showIcon={true} showText={true} />
-            </div>
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

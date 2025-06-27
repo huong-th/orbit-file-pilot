@@ -1,7 +1,6 @@
-
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { authApi } from '../services/authApi';
 import Cookies from 'js-cookie';
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import { authApi } from '@/services/authApi';
 
 interface User {
   id: number;
@@ -36,7 +35,7 @@ const setSecureCookies = (accessToken: string, refreshToken?: string) => {
     secure: window.location.protocol === 'https:',
     sameSite: 'strict' as const
   };
-  
+
   Cookies.set('access_token', accessToken, cookieOptions);
   if (refreshToken) {
     Cookies.set('refresh_token', refreshToken, cookieOptions);
@@ -55,16 +54,16 @@ export const loginWithPassword = createAsyncThunk(
   async (credentials: { email: string; password: string }, { rejectWithValue }) => {
     try {
       const response = await authApi.loginPassword(credentials.email, credentials.password);
-      
+
       // Set secure cookies
       setSecureCookies(response.access_token, response.refresh_token);
-      
+
       return response;
     } catch (error: any) {
       clearCookies();
       return rejectWithValue(
-        error.response?.data?.message || 
-        error.response?.data?.error || 
+        error.response?.data?.message ||
+        error.response?.data?.error ||
         'Login failed. Please check your credentials.'
       );
     }
@@ -77,16 +76,16 @@ export const loginWithGoogle = createAsyncThunk(
   async (token: string, { rejectWithValue }) => {
     try {
       const response = await authApi.loginGoogle(token);
-      
+
       // Set secure cookies
       setSecureCookies(response.access_token, response.refresh_token);
-      
+
       return response;
     } catch (error: any) {
       clearCookies();
       return rejectWithValue(
-        error.response?.data?.message || 
-        error.response?.data?.error || 
+        error.response?.data?.message ||
+        error.response?.data?.error ||
         'Google login failed.'
       );
     }
@@ -99,16 +98,16 @@ export const loginWithOTP = createAsyncThunk(
   async (credentials: { email: string; otp: string }, { rejectWithValue }) => {
     try {
       const response = await authApi.loginOtp(credentials.email, credentials.otp);
-      
+
       // Set secure cookies
       setSecureCookies(response.access_token, response.refresh_token);
-      
+
       return response;
     } catch (error: any) {
       clearCookies();
       return rejectWithValue(
-        error.response?.data?.message || 
-        error.response?.data?.error || 
+        error.response?.data?.message ||
+        error.response?.data?.error ||
         'OTP login failed.'
       );
     }
@@ -121,20 +120,20 @@ export const loginWithWebAuthn = createAsyncThunk(
   async (credentials: { email: string; options: { type: 'register' | 'authenticate' }; credential: any }, { rejectWithValue }) => {
     try {
       const response = await authApi.verifyWebAuthn(
-        credentials.email, 
-        credentials.options, 
+        credentials.email,
+        credentials.options,
         credentials.credential
       );
-      
+
       // Set secure cookies
       setSecureCookies(response.access_token, response.refresh_token);
-      
+
       return response;
     } catch (error: any) {
       clearCookies();
       return rejectWithValue(
-        error.response?.data?.message || 
-        error.response?.data?.error || 
+        error.response?.data?.message ||
+        error.response?.data?.error ||
         'WebAuthn login failed.'
       );
     }
@@ -150,8 +149,8 @@ export const requestOTP = createAsyncThunk(
       return response;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || 
-        error.response?.data?.error || 
+        error.response?.data?.message ||
+        error.response?.data?.error ||
         'Failed to send OTP.'
       );
     }
@@ -167,8 +166,8 @@ export const getUserProfile = createAsyncThunk(
       return response;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || 
-        error.response?.data?.error || 
+        error.response?.data?.message ||
+        error.response?.data?.error ||
         'Failed to get user profile.'
       );
     }

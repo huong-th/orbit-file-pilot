@@ -2,8 +2,15 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useAppDispatch } from '../../hooks/redux';
-import { loginUser } from '../../store/authSlice';
+import { useAppDispatch, useAppSelector } from '../../hooks/redux';
+import { 
+  loginWithPassword, 
+  loginWithGoogle, 
+  loginWithOTP, 
+  loginWithWebAuthn,
+  requestOTP,
+  clearError
+} from '../../store/authSlice';
 import { Mail, Smartphone, Fingerprint } from 'lucide-react';
 import { Alert, AlertDescription } from '../ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
@@ -33,72 +40,64 @@ const LoginForm: React.FC = () => {
   const { toast } = useToast();
   const { t } = useTranslation();
   
+  const { isLoading, error: authError } = useAppSelector((state) => state.auth);
+  
   const [activeTab, setActiveTab] = useState<LoginMethod>('password');
   const [otpStep, setOtpStep] = useState<'email' | 'otp'>('email');
   const [otpValue, setOtpValue] = useState('');
   const [otpEmail, setOtpEmail] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [forgotPasswordOpen, setForgotPasswordOpen] = useState(false);
 
   const onPasswordSubmit = async (data: LoginFormData) => {
     try {
-      setIsLoading(true);
-      setError(null);
+      const resultAction = await dispatch(loginWithPassword(data));
       
-      const resultAction = await dispatch(loginUser(data));
-      
-      if (loginUser.fulfilled.match(resultAction)) {
+      if (loginWithPassword.fulfilled.match(resultAction)) {
         toast({
           title: t('login.success.loginSuccess'),
           description: t('login.success.welcomeBack', { name: resultAction.payload.user.name }),
         });
         navigate('/dashboard');
       } else {
-        const errorMessage = resultAction.payload as string || 'Login failed';
-        setError(errorMessage);
         toast({
           title: 'Login Failed',
-          description: errorMessage,
+          description: resultAction.payload as string,
           variant: "destructive",
         });
       }
     } catch (err: any) {
-      const errorMessage = err.response?.data?.message || err.message || 'Login failed';
-      setError(errorMessage);
       toast({
         title: 'Login Failed',
-        description: errorMessage,
+        description: err.message || 'An unexpected error occurred',
         variant: "destructive",
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 
   const onOTPEmailSubmit = async (data: OTPEmailData) => {
     try {
-      setIsLoading(true);
-      setError(null);
+      const resultAction = await dispatch(requestOTP(data.email));
       
-      await authApi.requestOtp(data.email);
-      
-      setOtpEmail(data.email);
-      setOtpStep('otp');
-      toast({
-        title: t('login.success.otpSent'),
-        description: t('login.success.otpSentDescription', { email: data.email }),
-      });
+      if (requestOTP.fulfilled.match(resultAction)) {
+        setOtpEmail(data.email);
+        setOtpStep('otp');
+        toast({
+          title: t('login.success.otpSent'),
+          description: t('login.success.otpSentDescription', { email: data.email }),
+        });
+      } else {
+        toast({
+          title: 'OTP Request Failed',
+          description: resultAction.payload as string,
+          variant: "destructive",
+        });
+      }
     } catch (err: any) {
-      const errorMessage = err.response?.data?.message || err.message || 'Failed to send OTP';
-      setError(errorMessage);
       toast({
         title: 'OTP Request Failed',
-        description: errorMessage,
+        description: err.message || 'Failed to send OTP',
         variant: "destructive",
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -106,36 +105,35 @@ const LoginForm: React.FC = () => {
     setOtpValue(value);
     if (value.length === 6) {
       try {
-        setIsLoading(true);
-        setError(null);
+        const resultAction = await dispatch(loginWithOTP({ email: otpEmail, otp: value }));
         
-        const result = await authApi.loginOtp(otpEmail, value);
-        
-        toast({
-          title: t('login.success.loginSuccess'),
-          description: t('login.success.otpSuccess'),
-        });
-        navigate('/dashboard');
+        if (loginWithOTP.fulfilled.match(resultAction)) {
+          toast({
+            title: t('login.success.loginSuccess'),
+            description: t('login.success.otpSuccess'),
+          });
+          navigate('/dashboard');
+        } else {
+          toast({
+            title: t('login.error.invalidOtp'),
+            description: resultAction.payload as string,
+            variant: "destructive",
+          });
+          setOtpValue('');
+        }
       } catch (err: any) {
-        const errorMessage = err.response?.data?.message || err.message || 'Invalid OTP';
-        setError(errorMessage);
         toast({
           title: t('login.error.invalidOtp'),
-          description: errorMessage,
+          description: err.message || 'Invalid OTP',
           variant: "destructive",
         });
         setOtpValue('');
-      } finally {
-        setIsLoading(false);
       }
     }
   };
 
   const handleGoogleLogin = async () => {
     try {
-      setIsLoading(true);
-      setError(null);
-      
       // This would typically open Google OAuth popup
       // For now, we'll show a placeholder message
       toast({
@@ -143,23 +141,16 @@ const LoginForm: React.FC = () => {
         description: 'Google OAuth integration would be implemented here with your API',
       });
     } catch (err: any) {
-      const errorMessage = err.response?.data?.message || err.message || 'Google login failed';
-      setError(errorMessage);
       toast({
         title: 'Google Login Failed',
-        description: errorMessage,
+        description: err.message || 'Google login failed',
         variant: "destructive",
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 
   const handleFingerprintLogin = async () => {
     try {
-      setIsLoading(true);
-      setError(null);
-
       // Check if WebAuthn is supported
       if (!window.PublicKeyCredential) {
         throw new Error('WebAuthn is not supported in this browser');
@@ -181,25 +172,33 @@ const LoginForm: React.FC = () => {
       });
 
       if (credential) {
-        // Verify with your API
-        const result = await authApi.verifyWebAuthn(email, { type: 'authenticate' }, credential);
+        // Verify with Redux thunk
+        const resultAction = await dispatch(loginWithWebAuthn({
+          email,
+          options: { type: 'authenticate' },
+          credential
+        }));
         
-        toast({
-          title: t('login.success.fingerprintSuccess'),
-          description: t('login.success.fingerprintSuccessDescription'),
-        });
-        navigate('/dashboard');
+        if (loginWithWebAuthn.fulfilled.match(resultAction)) {
+          toast({
+            title: t('login.success.fingerprintSuccess'),
+            description: t('login.success.fingerprintSuccessDescription'),
+          });
+          navigate('/dashboard');
+        } else {
+          toast({
+            title: t('login.error.fingerprintFailed'),
+            description: resultAction.payload as string,
+            variant: "destructive",
+          });
+        }
       }
     } catch (err: any) {
-      const errorMessage = err.message || 'Fingerprint authentication failed';
-      setError(errorMessage);
       toast({
         title: t('login.error.fingerprintFailed'),
-        description: errorMessage,
+        description: err.message || 'Fingerprint authentication failed',
         variant: "destructive",
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -211,8 +210,8 @@ const LoginForm: React.FC = () => {
 
   // Clear error when switching tabs
   React.useEffect(() => {
-    setError(null);
-  }, [activeTab]);
+    dispatch(clearError());
+  }, [activeTab, dispatch]);
 
   return (
     <>
@@ -221,9 +220,9 @@ const LoginForm: React.FC = () => {
           <LoginHeader />
 
           {/* Error Alert */}
-          {error && (
+          {authError && (
             <Alert variant="destructive" className="mb-6">
-              <AlertDescription>{error}</AlertDescription>
+              <AlertDescription>{authError}</AlertDescription>
             </Alert>
           )}
 

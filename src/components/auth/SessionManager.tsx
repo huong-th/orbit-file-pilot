@@ -1,7 +1,7 @@
+
 import React, { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '../../hooks/redux';
-import { authApi } from '../../services/authApi';
-import { updateTokens } from '../../store/authSlice';
+import { getUserProfile, setUser, updateTokens } from '../../store/authSlice';
 import Cookies from 'js-cookie';
 
 interface SessionManagerProps {
@@ -10,43 +10,36 @@ interface SessionManagerProps {
 
 const SessionManager: React.FC<SessionManagerProps> = ({ children }) => {
   const dispatch = useAppDispatch();
-  const { isAuthenticated, user } = useAppSelector((state) => state.auth);
+  const { isAuthenticated, user, accessToken } = useAppSelector((state) => state.auth);
 
   useEffect(() => {
     const initializeSession = async () => {
-      const accessToken = Cookies.get('access_token');
+      const cookieAccessToken = Cookies.get('access_token');
+      const cookieRefreshToken = Cookies.get('refresh_token');
       
-      if (accessToken && !isAuthenticated && !user) {
+      // If we have a token in cookies but not in Redux state, restore it
+      if (cookieAccessToken && !isAuthenticated) {
+        dispatch(updateTokens({
+          access_token: cookieAccessToken,
+          refresh_token: cookieRefreshToken,
+        }));
+      }
+      
+      // If we're authenticated but don't have user data, fetch it
+      if ((isAuthenticated || cookieAccessToken) && !user) {
         try {
-          // Try to get user profile to verify token is still valid
-          const userProfile = await authApi.getProfile();
-          
-          // If successful, update Redux state with existing tokens
-          dispatch(updateTokens({
-            access_token: accessToken,
-            refresh_token: Cookies.get('refresh_token'),
-          }));
-          
-          // Also store user profile
-          dispatch({
-            type: 'auth/loginUser/fulfilled',
-            payload: {
-              tokens: {
-                access_token: accessToken,
-                refresh_token: Cookies.get('refresh_token') || '',
-              },
-              user: userProfile,
-            },
-          });
+          const resultAction = await dispatch(getUserProfile());
+          if (getUserProfile.fulfilled.match(resultAction)) {
+            dispatch(setUser(resultAction.payload));
+          }
         } catch (error) {
-          // If token is invalid, the API interceptor will handle cleanup
           console.log('Session validation failed, token may have expired');
         }
       }
     };
 
     initializeSession();
-  }, [dispatch, isAuthenticated, user]);
+  }, [dispatch, isAuthenticated, user, accessToken]);
 
   return <>{children}</>;
 };

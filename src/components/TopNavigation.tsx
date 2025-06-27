@@ -9,6 +9,7 @@ import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useFileManager } from '@/contexts/FileManagerContext';
+import {useNavigate} from "react-router-dom";
 
 interface TopNavigationProps {
   onSidebarToggle: () => void;
@@ -18,10 +19,11 @@ interface TopNavigationProps {
 
 const TopNavigation: React.FC<TopNavigationProps> = ({ onSidebarToggle, onSidebarCollapse, sidebarCollapsed }) => {
   const { searchQuery, setSearchQuery, viewMode, setViewMode } = useFileManager();
+  const navigate = useNavigate();
   const { t } = useTranslation();
 
   return (
-    <header className="sticky top-0 h-16 glass-subtle border-b border-border/30 flex items-center gap-4 px-6 backdrop-blur-xl z-30 flex-shrink-0 shadow-md">
+    <header className="sticky top-0 h-16 glass-subtle border-b border-border/30 flex justify-between items-center gap-4 px-6 backdrop-blur-xl z-30 flex-shrink-0 shadow-md">
       {/* Left section - Sidebar toggle and Search */}
       <div className="flex items-center gap-3 flex-1 max-w-2xl">
         <Button
@@ -155,6 +157,7 @@ const TopNavigation: React.FC<TopNavigationProps> = ({ onSidebarToggle, onSideba
                 variant="ghost"
                 size="sm"
                 className="flex items-center gap-2 !h-auto"
+                onClick={() => navigate('/settings')}
               >
                 <Settings className="w-4 h-4" />
                 {t('navigation.user.settings')}

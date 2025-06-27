@@ -11,7 +11,15 @@ const api = axios.create({
   timeout: 10000,
 });
 
-// Request interceptor to add auth token
+// Khai báo một biến để giữ hàm dispatch của Redux
+let reduxDispatch: any = null;
+
+// Hàm để tiêm hàm dispatch của Redux
+export const setReduxDispatch = (dispatch: any) => {
+  reduxDispatch = dispatch;
+};
+
+// Request interceptor để thêm token xác thực
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const token = Cookies.get('access_token');
@@ -49,9 +57,9 @@ api.interceptors.response.use(
 
           // Update the access token in cookies
           Cookies.set('access_token', access_token, {
-            expires: 7,
-            secure: true,
-            sameSite: 'strict'
+            expires: 7, // 7 ngày
+            secure: window.location.protocol === 'https:',
+            sameSite: 'strict' as const
           });
 
           // Update the authorization header for the original request
@@ -60,20 +68,20 @@ api.interceptors.response.use(
           // Retry the original request with the new token
           return api(originalRequest);
         } catch (refreshError) {
-          // Refresh failed, logout the user
-          store.dispatch(logout());
-
-          // Redirect to login if not already there
+          // Làm mới thất bại, xóa token và chuyển hướng đến trang đăng nhập
+          Cookies.remove('access_token');
+          Cookies.remove('refresh_token');
+          // Không cần gọi Redux dispatch trực tiếp ở đây,
+          // SessionManager sẽ xử lý trạng thái Redux khi cookie bị xóa.
           if (window.location.pathname !== '/login') {
             window.location.href = '/login';
           }
-
           return Promise.reject(refreshError);
         }
       } else {
-        // No refresh token, logout the user
-        store.dispatch(logout());
-
+        // Không có refresh token, xóa token và chuyển hướng đến trang đăng nhập
+        Cookies.remove('access_token');
+        Cookies.remove('refresh_token');
         if (window.location.pathname !== '/login') {
           window.location.href = '/login';
         }

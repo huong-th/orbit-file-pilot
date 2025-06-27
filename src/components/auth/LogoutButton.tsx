@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useAppDispatch } from '@/hooks/redux';
 import { logout } from '@/store/authSlice';
 import { useToast } from '@/hooks/use-toast';
+import {useTranslation} from "react-i18next";
 
 interface LogoutButtonProps {
   variant?: 'default' | 'ghost' | 'outline';
@@ -22,6 +23,7 @@ const LogoutButton: React.FC<LogoutButtonProps> = ({
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const handleLogout = () => {
     dispatch(logout());
@@ -42,7 +44,7 @@ const LogoutButton: React.FC<LogoutButtonProps> = ({
       className="flex items-center gap-2 !h-auto"
     >
       {showIcon && <LogOut className="w-4 h-4" />}
-      {showText && "Logout"}
+      {showText && t('navigation.user.signOut')}
     </Button>
   );
 };

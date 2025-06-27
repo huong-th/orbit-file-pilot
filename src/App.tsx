@@ -13,8 +13,13 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import SessionManager from "@/components/auth/SessionManager";
+import { setReduxDispatch } from '@/services/api';
+import AccountSettings from "@/pages/AccountSettings.tsx"; // Import setReduxDispatch
 
 const queryClient = new QueryClient();
+
+// Tiêm hàm dispatch của store vào module api sau khi store đã được tạo
+setReduxDispatch(store.dispatch);
 
 const App = () => (
   <Provider store={store}>
@@ -34,6 +39,7 @@ const App = () => (
                         <Route path="/" element={<Index />} />
                         <Route path="/folder/*" element={<Index />} />
                         <Route path="/dashboard" element={<Dashboard />} />
+                        <Route path="/settings" element={<AccountSettings />} />
                         <Route path="*" element={<NotFound />} />
                       </Routes>
                     </Layout>

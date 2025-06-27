@@ -54,8 +54,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, collapsed, onCollap
     const content = (
       <div
         className={`flex items-center transition-all duration-200 group relative ${
-          collapsed 
-            ? 'justify-center p-2.5 mx-1 my-1 rounded-lg' 
+          collapsed
+            ? 'justify-center p-2.5 mx-1 my-1 rounded-lg'
             : 'gap-3 px-3 py-2.5 mx-2 rounded-xl hover:scale-[1.01]'
         } ${
           isActive
@@ -109,6 +109,27 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, collapsed, onCollap
       </Link>
     );
   };
+
+  // --- START OF CHANGES ---
+
+  // Biến để lưu trữ ID của category cuối cùng được kích hoạt
+  let lastActiveMainCategoryId: string | null = null;
+
+  // Duyệt ngược để tìm category cuối cùng thỏa mãn điều kiện isActive
+  for (let i = mainCategories.length - 1; i >= 0; i--) {
+    const category = mainCategories[i];
+    const isInFolder = location.pathname.startsWith('/folder');
+    const hasTypeParam = location.search.includes(`type=${category.filter}`);
+    const isRootWithCorrectFilter = location.pathname === '/' && currentFilter === category.filter;
+
+    // Kiểm tra điều kiện isActive tương tự như trước
+    if (!isInFolder && (isRootWithCorrectFilter || hasTypeParam)) {
+      lastActiveMainCategoryId = category.id;
+      break; // Tìm thấy mục cuối cùng (khi duyệt ngược), thoát khỏi vòng lặp
+    }
+  }
+
+  // --- END OF CHANGES ---
 
   return (
     <TooltipProvider>
@@ -167,10 +188,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, collapsed, onCollap
                 )}
                 <div className={collapsed ? 'space-y-1' : 'space-y-1'}>
                   {mainCategories.map((category) => {
-                    const isInFolder = location.pathname.startsWith('/folder');
-                    const hasTypeParam = location.search.includes(`type=${category.filter}`);
-                    const isRootWithCorrectFilter = location.pathname === '/' && currentFilter === category.filter;
-                    const isActive = !isInFolder && (isRootWithCorrectFilter || hasTypeParam);
+                    // Cập nhật isActive để chỉ kích hoạt category cuối cùng
+                    const isActive = category.id === lastActiveMainCategoryId;
 
                     return (
                       <CategoryItem
@@ -192,6 +211,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, collapsed, onCollap
                 )}
                 <div className={collapsed ? 'space-y-1' : 'space-y-1'}>
                   {actionItems.map((item) => {
+                    // Logic cho actionItems có thể khác và không cần giới hạn 1 active item
+                    // Nếu bạn cũng muốn giới hạn 1 active item cho actionItems, áp dụng logic tương tự.
                     const isActive = item.id === 'dashboard'
                       ? location.pathname === '/dashboard'
                       : !location.pathname.startsWith('/folder') && location.pathname === '/' && currentFilter === item.filter;

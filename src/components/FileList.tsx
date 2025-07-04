@@ -1,39 +1,51 @@
 import React from 'react';
 import { MoreHorizontal, Download, Edit, Trash2, Share, Eye, Clock, HardDrive } from 'lucide-react';
+import { useDispatch } from 'react-redux';
+import { navigateToFolder } from '@/store/slices/navigationSlice';
+import { openModal, setPreviewFile, setRenameItem, setDeleteItems } from '@/store/slices/uiSlice';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { FileItem } from '@/contexts/FileManagerContext';
-import { useFileManager } from '@/contexts/FileManagerContext';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import type { DriveItem } from '@/types/files';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { formatDistanceToNow, parseISO } from 'date-fns';
+import { convertAndFindLargestUnit } from '@/lib/utils';
+import { useNavigate } from 'react-router-dom';
 
 interface FileListProps {
-  files: FileItem[];
+  files: DriveItem[];
 }
 
 const FileList: React.FC<FileListProps> = ({ files }) => {
-  const { setCurrentFolder, setPreviewFile, setRenameItem, setDeleteItems, openModal } = useFileManager();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-  const handleFileClick = (file: FileItem) => {
-    if (file.type === 'folder') {
-      setCurrentFolder(file.id);
+  const handleFileClick = (file: DriveItem) => {
+    if (file.kind === 'folder') {
+      dispatch(navigateToFolder({ folderId: file.id }));
+      navigate(`/folder/${file.id}`);
     } else {
-      setPreviewFile(file);
-      openModal('preview');
+      dispatch(setPreviewFile(file));
+      dispatch(openModal('preview'));
     }
   };
 
-  const handleRename = (file: FileItem) => {
-    setRenameItem(file);
-    openModal('rename');
+  const handleRename = (file: DriveItem) => {
+    dispatch(setRenameItem(file));
+    dispatch(openModal('rename'));
   };
 
-  const handleDelete = (file: FileItem) => {
-    setDeleteItems([file]);
-    openModal('delete');
+  const handleDelete = (file: DriveItem) => {
+    dispatch(setDeleteItems([file]));
+    dispatch(openModal('delete'));
   };
 
-  const getFileTypeBadge = (file: FileItem) => {
-    if (file.type === 'folder') return 'Folder';
+  const getFileTypeBadge = (file: DriveItem) => {
+    if (file.kind === 'folder') return 'Folder';
     const extension = file.name.split('.').pop()?.toUpperCase();
     if (['JPG', 'JPEG', 'PNG', 'GIF', 'WEBP', 'SVG'].includes(extension || '')) return 'Image';
     if (['MP4', 'AVI', 'MOV', 'WMV', 'MKV'].includes(extension || '')) return 'Video';
@@ -43,12 +55,12 @@ const FileList: React.FC<FileListProps> = ({ files }) => {
     return extension || 'File';
   };
 
-  const isImageFile = (file: FileItem) => {
+  const isImageFile = (file: DriveItem) => {
     const extension = file.name.split('.').pop()?.toLowerCase();
     return ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(extension || '');
   };
 
-  const isVideoFile = (file: FileItem) => {
+  const isVideoFile = (file: DriveItem) => {
     const extension = file.name.split('.').pop()?.toLowerCase();
     return ['mp4', 'avi', 'mov', 'wmv', 'mkv'].includes(extension || '');
   };
@@ -80,9 +92,9 @@ const FileList: React.FC<FileListProps> = ({ files }) => {
                 {/* Icon/Thumbnail */}
                 <div className="relative w-10 h-10 rounded-lg bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10 flex items-center justify-center border border-border/20 shadow-sm">
                   {isImageFile(file) || isVideoFile(file) ? (
-                    <div className="text-lg opacity-80">{file.icon}</div>
+                    <div className="text-lg opacity-80">{/* Thumbnail placeholder */}</div>
                   ) : (
-                    <div className="text-lg">{file.icon}</div>
+                    <div className="text-lg">{/* Generic icon placeholder */}</div>
                   )}
                 </div>
 
@@ -100,7 +112,7 @@ const FileList: React.FC<FileListProps> = ({ files }) => {
                     </Badge>
                   </div>
                   <p className="text-xs text-muted-foreground truncate">
-                    {file.type === 'folder' ? 'Folder' : `${getFileTypeBadge(file)} file`}
+                    {file.kind === 'folder' ? 'Folder' : `${getFileTypeBadge(file)} file`}
                   </p>
                 </div>
               </div>
@@ -109,7 +121,9 @@ const FileList: React.FC<FileListProps> = ({ files }) => {
               <div className="w-24 hidden sm:flex items-center">
                 <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                   <HardDrive className="w-3.5 h-3.5" />
-                  <span>{file.size || '-'}</span>
+                  <span>
+                    {(file.kind === 'file' && convertAndFindLargestUnit(file.size)) || '-'}
+                  </span>
                 </div>
               </div>
 
@@ -117,11 +131,11 @@ const FileList: React.FC<FileListProps> = ({ files }) => {
               <div className="w-32 hidden md:flex items-center">
                 <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                   <Clock className="w-3.5 h-3.5" />
-                  <span>{file.lastModified}</span>
+                  <span>{formatDistanceToNow(parseISO(file.updatedAt), { addSuffix: true })}</span>
                 </div>
               </div>
 
-              {/* File Type Badge (Mobile visible) */}
+              {/* File Type Badge (Large screens) */}
               <div className="w-20 hidden lg:block">
                 <Badge
                   variant="secondary"
@@ -151,7 +165,7 @@ const FileList: React.FC<FileListProps> = ({ files }) => {
                     className="h-7 w-7 p-0 bg-background/80 backdrop-blur-sm hover:bg-primary/20 shadow-sm border border-border/30"
                     onClick={(e) => {
                       e.stopPropagation();
-                      // Handle share action
+                      // TODO: Share action
                     }}
                   >
                     <Share className="w-3.5 h-3.5" />
@@ -167,7 +181,10 @@ const FileList: React.FC<FileListProps> = ({ files }) => {
                         <MoreHorizontal className="w-3.5 h-3.5" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="glass-subtle border border-border/50">
+                    <DropdownMenuContent
+                      align="end"
+                      className="glass-subtle border border-border/50"
+                    >
                       <DropdownMenuItem
                         className="cursor-pointer"
                         onClick={(e) => {
@@ -176,7 +193,7 @@ const FileList: React.FC<FileListProps> = ({ files }) => {
                         }}
                       >
                         <Download className="w-4 h-4 mr-2" />
-                        {file.type === 'folder' ? 'Open' : 'Download'}
+                        {file.kind === 'folder' ? 'Open' : 'Download'}
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         className="cursor-pointer"

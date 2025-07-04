@@ -7,11 +7,11 @@ import vi from './locales/vi.json';
 
 const resources = {
   en: {
-    translation: en
+    translation: en,
   },
   vi: {
-    translation: vi
-  }
+    translation: vi,
+  },
 };
 
 i18n
@@ -21,15 +21,15 @@ i18n
     resources,
     fallbackLng: 'en',
     debug: false,
-    
+
     interpolation: {
-      escapeValue: false
+      escapeValue: false,
     },
-    
+
     detection: {
       order: ['localStorage', 'navigator', 'htmlTag'],
-      caches: ['localStorage']
-    }
+      caches: ['localStorage'],
+    },
   });
 
 export default i18n;

@@ -3,9 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAppDispatch } from '@/hooks/redux';
-import { logout } from '@/store/authSlice';
+import { logout } from '@/store/slices/authSlice.ts';
 import { useToast } from '@/hooks/use-toast';
-import {useTranslation} from "react-i18next";
+import { useTranslation } from 'react-i18next';
 
 interface LogoutButtonProps {
   variant?: 'default' | 'ghost' | 'outline';
@@ -18,7 +18,7 @@ const LogoutButton: React.FC<LogoutButtonProps> = ({
   variant = 'ghost',
   size = 'sm',
   showIcon = true,
-  showText = true
+  showText = true,
 }) => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -29,8 +29,8 @@ const LogoutButton: React.FC<LogoutButtonProps> = ({
     dispatch(logout());
 
     toast({
-      title: "Logged out successfully",
-      description: "You have been logged out of your account",
+      title: 'Logged out successfully',
+      description: 'You have been logged out of your account',
     });
 
     navigate('/login');

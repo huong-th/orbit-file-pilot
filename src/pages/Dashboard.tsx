@@ -3,7 +3,14 @@ import { useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import {
   BarChart,
   Bar,
@@ -15,17 +22,9 @@ import {
   ResponsiveContainer,
   PieChart,
   Pie,
-  Cell
+  Cell,
 } from 'recharts';
-import {
-  Folder,
-  Image,
-  Video,
-  FileText,
-  HardDrive,
-  TrendingUp,
-  Clock
-} from 'lucide-react';
+import { Folder, Image, Video, FileText, HardDrive, TrendingUp, Clock } from 'lucide-react';
 
 // Mock data
 const summaryData = {
@@ -60,7 +59,7 @@ const uploadTrendsData = {
     { name: 'Apr', images: 298, videos: 38, documents: 187, others: 76 },
     { name: 'May', images: 387, videos: 67, documents: 256, others: 94 },
     { name: 'Jun', images: 445, videos: 73, documents: 312, others: 118 },
-  ]
+  ],
 };
 
 const fileTypeDistribution = [
@@ -72,7 +71,13 @@ const fileTypeDistribution = [
 
 const recentFiles = [
   { name: 'vacation-photo.jpg', type: 'Image', size: '2.4 MB', date: '2 hours ago', icon: '🖼️' },
-  { name: 'project-proposal.pdf', type: 'Document', size: '1.8 MB', date: '4 hours ago', icon: '📄' },
+  {
+    name: 'project-proposal.pdf',
+    type: 'Document',
+    size: '1.8 MB',
+    date: '4 hours ago',
+    icon: '📄',
+  },
   { name: 'presentation.mp4', type: 'Video', size: '45.2 MB', date: '1 day ago', icon: '🎥' },
   { name: 'report-Q4.docx', type: 'Document', size: '892 KB', date: '2 days ago', icon: '📝' },
   { name: 'screenshot.png', type: 'Image', size: '1.2 MB', date: '3 days ago', icon: '🖼️' },
@@ -135,7 +140,9 @@ const Dashboard = () => {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-1">Overview of your file storage and activity</p>
+            <p className="text-gray-600 dark:text-gray-400 mt-1">
+              Overview of your file storage and activity
+            </p>
           </div>
           <div className="flex items-center gap-2">
             <Button
@@ -165,14 +172,19 @@ const Dashboard = () => {
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {summaryCards.map((card, index) => (
-            <Card key={index} className="border-0 shadow-md hover:shadow-lg transition-all duration-200">
+            <Card
+              key={index}
+              className="border-0 shadow-md hover:shadow-lg transition-all duration-200"
+            >
               <CardContent className="p-6">
                 <div className="flex items-center gap-4">
                   <div className={`p-3 rounded-lg ${card.bgColor}`}>
                     <card.icon className={`w-6 h-6 ${card.color}`} />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{card.title}</p>
+                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                      {card.title}
+                    </p>
                     <p className="text-2xl font-bold text-gray-900 dark:text-white">
                       {card.value.toLocaleString()}
                     </p>

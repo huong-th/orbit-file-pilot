@@ -1,6 +1,9 @@
 import Cookies from 'js-cookie';
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { authApi } from '@/services/authApi';
+import { authApi } from '@/services/authApi.ts';
+// import { addPasskey } from '@/store/slices/passkeySlice';
+import { startRegistration, startAuthentication } from '@simplewebauthn/browser';
+import { WebAuthnAuthenticationChallenge, WebAuthnChallenge } from '@/types/auth.ts';
 
 interface User {
   id: number;
@@ -33,7 +36,7 @@ const setSecureCookies = (accessToken: string, refreshToken?: string) => {
   const cookieOptions = {
     expires: 7, // 7 days
     secure: window.location.protocol === 'https:',
-    sameSite: 'strict' as const
+    sameSite: 'strict' as const,
   };
 
   Cookies.set('access_token', accessToken, cookieOptions);
@@ -63,8 +66,8 @@ export const loginWithPassword = createAsyncThunk(
       clearCookies();
       return rejectWithValue(
         error.response?.data?.message ||
-        error.response?.data?.error ||
-        'Login failed. Please check your credentials.'
+          error.response?.data?.error ||
+          'Login failed. Please check your credentials.'
       );
     }
   }
@@ -84,9 +87,7 @@ export const loginWithGoogle = createAsyncThunk(
     } catch (error: any) {
       clearCookies();
       return rejectWithValue(
-        error.response?.data?.message ||
-        error.response?.data?.error ||
-        'Google login failed.'
+        error.response?.data?.message || error.response?.data?.error || 'Google login failed.'
       );
     }
   }
@@ -106,9 +107,7 @@ export const loginWithOTP = createAsyncThunk(
     } catch (error: any) {
       clearCookies();
       return rejectWithValue(
-        error.response?.data?.message ||
-        error.response?.data?.error ||
-        'OTP login failed.'
+        error.response?.data?.message || error.response?.data?.error || 'OTP login failed.'
       );
     }
   }
@@ -117,24 +116,27 @@ export const loginWithOTP = createAsyncThunk(
 // Async thunk for WebAuthn login
 export const loginWithWebAuthn = createAsyncThunk(
   'auth/loginWithWebAuthn',
-  async (credentials: { email: string; options: { type: 'register' | 'authenticate' }; credential: any }, { rejectWithValue }) => {
+  async (email: string, { rejectWithValue }) => {
     try {
-      const response = await authApi.verifyWebAuthn(
-        credentials.email,
-        credentials.options,
-        credentials.credential
-      );
+      const challengeOptions = await authApi.generateWebAuthnChallenge(email, 'authenticate');
+
+      const authResp = await startAuthentication({
+        optionsJSON: challengeOptions as WebAuthnAuthenticationChallenge,
+      });
+
+      const response = await authApi.verifyWebAuthn(email, { type: 'authenticate' }, authResp);
 
       // Set secure cookies
       setSecureCookies(response.access_token, response.refresh_token);
 
       return response;
     } catch (error: any) {
-      clearCookies();
+      console.error('Error during WebAuthn login:', error);
       return rejectWithValue(
-        error.response?.data?.message ||
-        error.response?.data?.error ||
-        'WebAuthn login failed.'
+        error.message ||
+          error.response?.data?.message ||
+          error.response?.data?.error ||
+          'WebAuthn login failed.'
       );
     }
   }
@@ -149,9 +151,7 @@ export const requestOTP = createAsyncThunk(
       return response;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message ||
-        error.response?.data?.error ||
-        'Failed to send OTP.'
+        error.response?.data?.message || error.response?.data?.error || 'Failed to send OTP.'
       );
     }
   }
@@ -167,8 +167,47 @@ export const getUserProfile = createAsyncThunk(
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message ||
-        error.response?.data?.error ||
-        'Failed to get user profile.'
+          error.response?.data?.error ||
+          'Failed to get user profile.'
+      );
+    }
+  }
+);
+
+// Async thunk for WebAuthn Registration (MỚI)
+export const registerNewPasskey = createAsyncThunk(
+  'auth/registerNewPasskey',
+  async ({ email }: { email: string }, { rejectWithValue, dispatch }) => {
+    try {
+      // Bước 1: Yêu cầu challenge từ server. challengeOptions bây giờ là PublicKeyCredentialCreationOptionsJSON
+      // Đảm bảo API generateWebAuthnChallenge trả về đúng PublicKeyCredentialCreationOptionsJSON
+      const challengeOptions = await authApi.generateWebAuthnChallenge(email, 'register');
+
+      // Bước 2: Tạo credential bằng WebAuthn API của trình duyệt thông qua SimpleWebAuthn
+      // startRegistration mong đợi một đối tượng với thuộc tính 'optionsJSON'
+      const attResp = await startRegistration({
+        optionsJSON: challengeOptions as WebAuthnChallenge,
+      });
+
+      // Bước 3: Gửi credential đã tạo lên server để xác minh và lưu trữ
+      const serverResponse = await authApi.verifyWebAuthn(email, { type: 'register' }, attResp); // Gửi attResp trực tiếp
+
+      // Thêm passkey vào Redux store
+      // dispatch(addPasskey({
+      //   id: serverResponse.passkeyId,
+      //   name: serverResponse.name,
+      //   createdAt: serverResponse.createdAt,
+      // }));
+
+      return serverResponse; // Trả về dữ liệu cần thiết nếu thành công
+    } catch (error: any) {
+      console.error('Error during passkey registration:', error);
+      // Xử lý lỗi cụ thể từ WebAuthn API hoặc backend
+      return rejectWithValue(
+        error.message ||
+          error.response?.data?.message ||
+          error.response?.data?.error ||
+          'Failed to register passkey.'
       );
     }
   }
@@ -189,7 +228,10 @@ const authSlice = createSlice({
     clearError: (state) => {
       state.error = null;
     },
-    updateTokens: (state, action: PayloadAction<{ access_token: string; refresh_token?: string }>) => {
+    updateTokens: (
+      state,
+      action: PayloadAction<{ access_token: string; refresh_token?: string }>
+    ) => {
       state.accessToken = action.payload.access_token;
       if (action.payload.refresh_token) {
         state.refreshToken = action.payload.refresh_token;
@@ -307,6 +349,22 @@ const authSlice = createSlice({
         state.user = action.payload;
       })
       .addCase(getUserProfile.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      });
+
+    // Register new passkey
+    builder
+      .addCase(registerNewPasskey.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(registerNewPasskey.fulfilled, (state) => {
+        state.isLoading = false;
+        state.error = null;
+        // Passkey đã được thêm vào passkeySlice state bởi action addPasskey
+      })
+      .addCase(registerNewPasskey.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
       });

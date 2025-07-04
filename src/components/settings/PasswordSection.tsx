@@ -22,11 +22,7 @@ const PasswordSection: React.FC = () => {
               onClick={() => setIsExpanded(!isExpanded)}
               className="h-11 w-11 p-0 text-muted-foreground hover:text-foreground hover:bg-accent"
             >
-              {isExpanded ? (
-                <ChevronUp className="w-4 h-4" />
-              ) : (
-                <ChevronDown className="w-4 h-4" />
-              )}
+              {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
             </Button>
           </div>
         </CardHeader>
@@ -48,10 +44,7 @@ const PasswordSection: React.FC = () => {
         )}
       </Card>
 
-      <PasswordChangeModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-      />
+      <PasswordChangeModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </>
   );
 };

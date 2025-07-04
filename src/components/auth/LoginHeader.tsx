@@ -10,12 +10,8 @@ const LoginHeader: React.FC = () => {
       <div className="w-16 h-16 mx-auto mb-4 bg-primary/10 rounded-full flex items-center justify-center">
         <LogIn className="w-8 h-8 text-primary" />
       </div>
-      <h1 className="text-3xl font-bold text-foreground mb-2">
-        {t('login.title')}
-      </h1>
-      <p className="text-muted-foreground">
-        {t('login.subtitle')}
-      </p>
+      <h1 className="text-3xl font-bold text-foreground mb-2">{t('login.title')}</h1>
+      <p className="text-muted-foreground">{t('login.subtitle')}</p>
     </div>
   );
 };

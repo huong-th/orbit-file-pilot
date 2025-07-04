@@ -11,7 +11,6 @@ import AvatarUpload from './AvatarUpload';
 import PasswordSection from './PasswordSection';
 import SecuritySection from './SecuritySection';
 import DangerZone from './DangerZone';
-import {undefined} from "zod";
 
 interface FormData {
   username: string;
@@ -25,10 +24,7 @@ const schema = yup.object({
     .required('Username is required')
     .min(3, 'Username must be at least 3 characters')
     .max(32, 'Username must be at most 32 characters'),
-  email: yup
-    .string()
-    .required('Email is required')
-    .email('Please enter a valid email address'),
+  email: yup.string().required('Email is required').email('Please enter a valid email address'),
   avatar: yup.mixed<File>().nullable().optional(), // optional ở đây chỉ ra rằng nó có thể không có mặt, nhưng khi có thì nó là File hoặc null
 });
 
@@ -44,29 +40,28 @@ const AccountSettingsForm: React.FC = () => {
     watch,
   } = useForm<FormData>({
     resolver: yupResolver(schema),
-    // Explicitly cast defaultValues to FormData
     defaultValues: {
       username: 'john_doe',
       email: 'john@example.com',
       avatar: null,
-    } as FormData // <--- Add this cast
+    } as FormData, // <--- Add this cast
   });
 
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
     try {
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       toast({
-        title: "Success",
-        description: "Your account settings have been updated successfully.",
+        title: 'Success',
+        description: 'Your account settings have been updated successfully.',
       });
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to update account settings. Please try again.",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Failed to update account settings. Please try again.',
+        variant: 'destructive',
       });
     } finally {
       setIsSubmitting(false);

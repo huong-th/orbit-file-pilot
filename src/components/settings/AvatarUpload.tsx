@@ -1,6 +1,5 @@
 import React, { useRef, useState, useCallback } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
 import { Upload, User } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -21,18 +20,18 @@ const AvatarUpload: React.FC<AvatarUploadProps> = ({ onImageChange, currentImage
 
     if (!allowedTypes.includes(file.type)) {
       toast({
-        title: "Invalid file type",
-        description: "Please upload a PNG or JPEG image.",
-        variant: "destructive",
+        title: 'Invalid file type',
+        description: 'Please upload a PNG or JPEG image.',
+        variant: 'destructive',
       });
       return false;
     }
 
     if (file.size > maxSize) {
       toast({
-        title: "File too large",
-        description: "Please upload an image smaller than 2MB.",
-        variant: "destructive",
+        title: 'File too large',
+        description: 'Please upload an image smaller than 2MB.',
+        variant: 'destructive',
       });
       return false;
     }
@@ -40,23 +39,29 @@ const AvatarUpload: React.FC<AvatarUploadProps> = ({ onImageChange, currentImage
     return true;
   };
 
-  const handleFileChange = useCallback((file: File) => {
-    if (!validateFile(file)) return;
+  const handleFileChange = useCallback(
+    (file: File) => {
+      if (!validateFile(file)) return;
 
-    const url = URL.createObjectURL(file);
-    setPreviewUrl(url);
-    onImageChange(file);
-  }, [onImageChange]);
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
+      onImageChange(file);
+    },
+    [onImageChange]
+  );
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      setIsDragging(false);
 
-    const files = e.dataTransfer.files;
-    if (files.length > 0) {
-      handleFileChange(files[0]);
-    }
-  }, [handleFileChange]);
+      const files = e.dataTransfer.files;
+      if (files.length > 0) {
+        handleFileChange(files[0]);
+      }
+    },
+    [handleFileChange]
+  );
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -101,12 +106,8 @@ const AvatarUpload: React.FC<AvatarUploadProps> = ({ onImageChange, currentImage
           onClick={handleClick}
         >
           <Upload className="w-6 h-6 mx-auto mb-2 text-muted-foreground" />
-          <p className="text-sm text-foreground">
-            Drag & drop or click to upload
-          </p>
-          <p className="text-xs text-muted-foreground mt-1">
-            PNG or JPEG, max 2MB
-          </p>
+          <p className="text-sm text-foreground">Drag & drop or click to upload</p>
+          <p className="text-xs text-muted-foreground mt-1">PNG or JPEG, max 2MB</p>
         </div>
 
         <input

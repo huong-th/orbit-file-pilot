@@ -7,16 +7,23 @@ import { Mail, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast.ts';
 
-const createForgotPasswordSchema = (t: any) => yup.object().shape({
-  email: yup
-    .string()
-    .required(t('forgotPassword.errors.emailRequired'))
-    .email(t('forgotPassword.errors.emailInvalid')),
-});
+const createForgotPasswordSchema = (t: any) =>
+  yup.object().shape({
+    email: yup
+      .string()
+      .required(t('forgotPassword.errors.emailRequired'))
+      .email(t('forgotPassword.errors.emailInvalid')),
+  });
 
 interface ForgotPasswordFormData {
   email: string;
@@ -52,7 +59,7 @@ const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({ open, onOpenC
 
       // This would call your forgot password API endpoint
       // For now, we'll simulate the request
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       setIsSuccess(true);
       toast({
@@ -64,14 +71,14 @@ const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({ open, onOpenC
       setTimeout(() => {
         handleClose();
       }, 2000);
-
     } catch (err: any) {
-      const errorMessage = err.response?.data?.message || err.message || 'Failed to send reset email';
+      const errorMessage =
+        err.response?.data?.message || err.message || 'Failed to send reset email';
       setError(errorMessage);
       toast({
         title: t('forgotPassword.error.title'),
         description: errorMessage,
-        variant: "destructive",
+        variant: 'destructive',
       });
     } finally {
       setIsLoading(false);
@@ -112,9 +119,7 @@ const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({ open, onOpenC
             <h3 className="text-lg font-medium text-foreground mb-2">
               {t('forgotPassword.success.title')}
             </h3>
-            <p className="text-sm text-muted-foreground">
-              {t('forgotPassword.success.sent')}
-            </p>
+            <p className="text-sm text-muted-foreground">{t('forgotPassword.success.sent')}</p>
           </div>
         ) : (
           <>

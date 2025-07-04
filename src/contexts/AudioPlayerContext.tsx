@@ -88,12 +88,15 @@ export const AudioPlayerProvider: React.FC<{ children: React.ReactNode }> = ({ c
     setCurrentTrack(track);
     setProgress(0);
 
-    audio.play().then(() => {
-      setIsPlaying(true);
-    }).catch((error) => {
-      console.error('Error playing audio:', error);
-      setIsPlaying(false);
-    });
+    audio
+      .play()
+      .then(() => {
+        setIsPlaying(true);
+      })
+      .catch((error) => {
+        console.error('Error playing audio:', error);
+        setIsPlaying(false);
+      });
   };
 
   const pauseTrack = () => {

@@ -1,42 +1,57 @@
 import React from 'react';
 import { MoreHorizontal, Download, Edit, Trash2, Share, Eye } from 'lucide-react';
-import { FileItem } from '@/contexts/FileManagerContext';
-import { useFileManager } from '@/contexts/FileManagerContext';
+import { useDispatch } from 'react-redux';
+import { navigateToFolder } from '@/store/slices/navigationSlice';
+import { openModal, setPreviewFile, setRenameItem, setDeleteItems } from '@/store/slices/uiSlice';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import type { DriveItem } from '@/types/files';
+import { formatDistanceToNow, parseISO } from 'date-fns';
+import { convertAndFindLargestUnit } from '@/lib/utils';
+import { useNavigate } from 'react-router-dom';
 
 interface FileCardProps {
-  file: FileItem;
+  file: DriveItem;
 }
 
 const FileCard: React.FC<FileCardProps> = ({ file }) => {
-  const { setCurrentFolder, setPreviewFile, setRenameItem, setDeleteItems, openModal } = useFileManager();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const isFolder = file.kind === 'folder';
 
   const handleFileClick = () => {
-    if (file.type === 'folder') {
-      setCurrentFolder(file.id);
+    if (isFolder) {
+      dispatch(navigateToFolder({ folderId: file.id }));
+      navigate(`/folder/${file.id}`);
     } else {
-      setPreviewFile(file);
-      openModal('preview');
+      dispatch(setPreviewFile(file));
+      dispatch(openModal('preview'));
     }
   };
 
   const handleRename = () => {
-    setRenameItem(file);
-    openModal('rename');
+    dispatch(setRenameItem(file));
+    dispatch(openModal('rename'));
   };
 
   const handleDelete = () => {
-    setDeleteItems([file]);
-    openModal('delete');
+    dispatch(setDeleteItems([file]));
+    dispatch(openModal('delete'));
   };
 
   const getFileTypeBadge = () => {
-    if (file.type === 'folder') return 'Folder';
+    if (isFolder) return 'Folder';
     const extension = file.name.split('.').pop()?.toUpperCase();
     if (['JPG', 'JPEG', 'PNG', 'GIF', 'WEBP', 'SVG'].includes(extension || '')) return 'Image';
-    if (['MP4', 'AVI', 'MOV', 'WMV', 'MKV'].includes(extension || '')) return 'Video';
+    if (['MP4', 'AVI', 'MOV', 'WMV', 'MKV', 'WEBM', 'M4V', '3GP'].includes(extension || ''))
+      return 'Video';
     if (['PDF'].includes(extension || '')) return 'PDF';
     if (['DOC', 'DOCX'].includes(extension || '')) return 'Word';
     if (['XLS', 'XLSX'].includes(extension || '')) return 'Excel';
@@ -65,7 +80,7 @@ const FileCard: React.FC<FileCardProps> = ({ file }) => {
         </Badge>
       </div>
 
-      {/* Quick Actions - visible on hover */}
+      {/* Quick Actions */}
       <div className="absolute top-2 right-2 z-20 flex gap-1 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0">
         <Button
           variant="ghost"
@@ -84,7 +99,7 @@ const FileCard: React.FC<FileCardProps> = ({ file }) => {
           className="h-7 w-7 p-0 bg-background/90 backdrop-blur-sm hover:bg-primary/20 shadow-sm border border-border/30"
           onClick={(e) => {
             e.stopPropagation();
-            // Handle share action
+            // TODO: Share action
           }}
         >
           <Share className="w-3.5 h-3.5" />
@@ -103,16 +118,13 @@ const FileCard: React.FC<FileCardProps> = ({ file }) => {
           <DropdownMenuContent align="end" className="glass-subtle border border-border/50">
             <DropdownMenuItem className="cursor-pointer" onClick={handleFileClick}>
               <Download className="w-4 h-4 mr-2" />
-              {file.type === 'folder' ? 'Open' : 'Download'}
+              {isFolder ? 'Open' : 'Download'}
             </DropdownMenuItem>
             <DropdownMenuItem className="cursor-pointer" onClick={handleRename}>
               <Edit className="w-4 h-4 mr-2" />
               Rename
             </DropdownMenuItem>
-            <DropdownMenuItem
-              className="cursor-pointer text-destructive"
-              onClick={handleDelete}
-            >
+            <DropdownMenuItem className="cursor-pointer text-destructive" onClick={handleDelete}>
               <Trash2 className="w-4 h-4 mr-2" />
               Delete
             </DropdownMenuItem>
@@ -121,68 +133,35 @@ const FileCard: React.FC<FileCardProps> = ({ file }) => {
       </div>
 
       <div className="p-4" onClick={handleFileClick}>
-        {/* File preview/thumbnail */}
+        {/* Thumbnail */}
         <div className="aspect-square bg-gradient-to-br from-primary/5 via-secondary/10 to-accent/5 rounded-xl flex items-center justify-center mb-3 group-hover:scale-[1.02] transition-all duration-300 shadow-inner border border-border/20 relative overflow-hidden">
-          {file.thumbnail ? (
-            <div className="relative w-full h-full">
-              <img
-                src={file.thumbnail}
-                alt={file.name}
-                className="absolute inset-0 w-full h-full object-cover rounded-xl"
-                loading="lazy"
-                onError={(e) => {
-                  // Fallback to icon if image fails to load
-                  const target = e.target as HTMLImageElement;
-                  target.style.display = 'none';
-                  const fallback = target.nextElementSibling as HTMLElement;
-                  if (fallback) fallback.style.display = 'flex';
-                }}
-              />
-              {/* Video play overlay */}
-              {isVideoFile() && (
-                <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl">
-                  <div className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center shadow-lg">
-                    <div className="w-0 h-0 border-l-[8px] border-l-black border-y-[6px] border-y-transparent ml-1"></div>
-                  </div>
-                </div>
-              )}
-              {/* Fallback icon for failed thumbnail loads */}
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center" style={{ display: 'none' }}>
-                <div className="text-4xl opacity-80">{file.icon}</div>
-              </div>
-            </div>
-          ) : isImageFile() || isVideoFile() ? (
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
-              <div className="text-4xl opacity-80">{file.icon}</div>
-              <div className="absolute inset-0 bg-black/10 rounded-xl"></div>
-            </div>
+          {file.kind === 'file' && file.thumbnailUrl ? (
+            <img
+              src={file.thumbnailUrl}
+              alt={file.name}
+              className="absolute inset-0 w-full h-full object-cover rounded-xl"
+              loading="lazy"
+            />
           ) : (
             <div className="text-5xl opacity-90 drop-shadow-lg transform group-hover:scale-110 transition-transform duration-300">
-              {file.icon}
+              {/* Placeholder icon */}
+              📁
             </div>
           )}
         </div>
 
-        {/* File info */}
+        {/* Info */}
         <div className="space-y-2">
           <h3 className="font-semibold text-sm text-foreground truncate leading-tight font-display">
             {file.name}
           </h3>
-          {/* Video subtitle */}
-          {isVideoFile() && file.subtitle && (
-            <p className="text-xs text-muted-foreground truncate opacity-75">
-              {file.subtitle}
-            </p>
-          )}
-          {/* Video description */}
-          {isVideoFile() && file.description && (
-            <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed opacity-90">
-              {file.description}
-            </p>
-          )}
           <div className="space-y-1 text-xs text-muted-foreground">
-            <div className="truncate font-medium">{file.size || 'Folder'}</div>
-            <div className="truncate opacity-80">{file.lastModified}</div>
+            <div className="truncate font-medium">
+              {isFolder ? 'Folder' : convertAndFindLargestUnit(file.size)}
+            </div>
+            <div className="truncate opacity-80">
+              {formatDistanceToNow(parseISO(file.updatedAt), { addSuffix: true })}
+            </div>
           </div>
         </div>
       </div>

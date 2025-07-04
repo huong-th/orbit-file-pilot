@@ -6,10 +6,7 @@ interface LoadingSkeletonProps {
   viewMode?: 'grid' | 'list';
 }
 
-const LoadingSkeleton: React.FC<LoadingSkeletonProps> = ({
-  count = 6,
-  viewMode = 'grid'
-}) => {
+const LoadingSkeleton: React.FC<LoadingSkeletonProps> = ({ count = 6, viewMode = 'grid' }) => {
   if (viewMode === 'list') {
     return (
       <div className="space-y-3">
@@ -32,7 +29,10 @@ const LoadingSkeleton: React.FC<LoadingSkeletonProps> = ({
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
       {Array.from({ length: count }).map((_, index) => (
-        <div key={index} className="group p-4 rounded-2xl bg-card/30 border border-border/20 hover:shadow-lg transition-all duration-200">
+        <div
+          key={index}
+          className="group p-4 rounded-2xl bg-card/30 border border-border/20 hover:shadow-lg transition-all duration-200"
+        >
           <div className="space-y-3">
             <div className="flex items-center justify-center h-20 w-full rounded-xl bg-muted/50">
               <Skeleton className="h-8 w-8 rounded" />

@@ -9,12 +9,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
 
-const createOtpEmailSchema = (t: any) => yup.object().shape({
-  email: yup
-    .string()
-    .required(t('login.errors.emailRequired'))
-    .email(t('login.errors.emailInvalid')),
-});
+const createOtpEmailSchema = (t: any) =>
+  yup.object().shape({
+    email: yup
+      .string()
+      .required(t('login.errors.emailRequired'))
+      .email(t('login.errors.emailInvalid')),
+  });
 
 interface OTPEmailData {
   email: string;
@@ -37,7 +38,7 @@ const OTPLoginTab: React.FC<OTPLoginTabProps> = ({
   isLoading,
   onOTPEmailSubmit,
   onOTPComplete,
-  onResetOTPFlow
+  onResetOTPFlow,
 }) => {
   const { t } = useTranslation();
 
@@ -77,9 +78,7 @@ const OTPLoginTab: React.FC<OTPLoginTabProps> = ({
               className="pl-10 bg-background/50 border-border/50 focus:border-primary/50 transition-colors"
             />
           </div>
-          {errors.email && (
-            <p className="text-sm text-destructive mt-1">{errors.email.message}</p>
-          )}
+          {errors.email && <p className="text-sm text-destructive mt-1">{errors.email.message}</p>}
         </div>
 
         <Button
@@ -110,24 +109,14 @@ const OTPLoginTab: React.FC<OTPLoginTabProps> = ({
           <Smartphone className="w-8 h-8 text-green-600 dark:text-green-400" />
         </div>
         <h3 className="text-lg font-semibold mb-2">Enter OTP</h3>
-        <p className="text-sm text-muted-foreground">
-          We sent a 6-digit code to {otpEmail}
-        </p>
-        <p className="text-xs text-muted-foreground mt-1">
-          Demo: Use 123456 to login
-        </p>
+        <p className="text-sm text-muted-foreground">We sent a 6-digit code to {otpEmail}</p>
+        <p className="text-xs text-muted-foreground mt-1">Demo: Use 123456 to login</p>
       </div>
 
       <div className="space-y-4">
-        <Label className="text-sm font-medium text-center block">
-          6-Digit Code
-        </Label>
+        <Label className="text-sm font-medium text-center block">6-Digit Code</Label>
         <div className="flex justify-center">
-          <InputOTP
-            maxLength={6}
-            value={otpValue}
-            onChange={onOTPComplete}
-          >
+          <InputOTP maxLength={6} value={otpValue} onChange={onOTPComplete}>
             <InputOTPGroup>
               <InputOTPSlot index={0} />
               <InputOTPSlot index={1} />
@@ -141,11 +130,7 @@ const OTPLoginTab: React.FC<OTPLoginTabProps> = ({
       </div>
 
       <div className="flex gap-2">
-        <Button
-          onClick={onResetOTPFlow}
-          variant="outline"
-          className="flex-1"
-        >
+        <Button onClick={onResetOTPFlow} variant="outline" className="flex-1">
           Back
         </Button>
         <Button

@@ -1,56 +1,60 @@
+// src/components/modals/RenameModal.tsx
 import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { Edit } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { useFileManager } from '@/contexts/FileManagerContext';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import type { RootState, AppDispatch } from '@/store/store.ts';
+import { closeModal, setRenameItem } from '@/store/slices/uiSlice';
+// TODO: import renameFileOrFolder thunk once backend endpoint exists
 
 const RenameModal: React.FC = () => {
-  const { modals, closeModal, renameItem } = useFileManager();
+  const dispatch = useDispatch<AppDispatch>();
+  const isOpen = useSelector((s: RootState) => s.ui.modals.rename);
+  const item = useSelector((s: RootState) => s.ui.renameItem);
   const [newName, setNewName] = useState('');
 
+  // Populate input when item changes
   useEffect(() => {
-    if (renameItem) {
-      setNewName(renameItem.name);
-    }
-  }, [renameItem]);
+    if (item) setNewName(item.name);
+  }, [item]);
+
+  const resetAndClose = () => {
+    setNewName('');
+    dispatch(closeModal('rename'));
+    dispatch(setRenameItem(null));
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (newName.trim() && renameItem) {
-      // Here you would typically rename the item
-      console.log('Renaming item:', renameItem.id, 'to:', newName);
-      handleClose();
-    }
+    if (!item || !newName.trim() || newName === item.name) return;
+
+    // TODO: dispatch(renameFileOrFolder({ id: item.id, name: newName }))
+    console.log('Renaming', item.id, 'to', newName);
+    resetAndClose();
   };
 
-  const handleClose = () => {
-    setNewName('');
-    closeModal('rename');
-  };
-
-  if (!renameItem) return null;
+  if (!item) return null;
 
   return (
-    <Dialog open={modals.rename} onOpenChange={handleClose}>
+    <Dialog open={isOpen} onOpenChange={resetAndClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Edit className="w-5 h-5 text-blue-600" />
-            Rename {renameItem.type === 'folder' ? 'Folder' : 'File'}
+            Rename {item.kind === 'folder' ? 'Folder' : 'File'}
           </DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-            <span className="text-2xl">{renameItem.icon}</span>
-            <div>
-              <p className="font-medium text-gray-900 dark:text-white">{renameItem.name}</p>
-              <p className="text-sm text-gray-500 dark:text-gray-400 capitalize">{renameItem.type}</p>
-            </div>
-          </div>
-
           <div className="space-y-2">
             <Label htmlFor="new-name">New Name</Label>
             <Input
@@ -58,22 +62,18 @@ const RenameModal: React.FC = () => {
               type="text"
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
-              className="w-full"
               autoFocus
+              className="w-full"
             />
           </div>
 
           <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleClose}
-            >
+            <Button type="button" variant="outline" onClick={resetAndClose}>
               Cancel
             </Button>
             <Button
               type="submit"
-              disabled={!newName.trim() || newName === renameItem.name}
+              disabled={!newName.trim() || newName === item.name}
               className="bg-blue-600 hover:bg-blue-700"
             >
               Rename

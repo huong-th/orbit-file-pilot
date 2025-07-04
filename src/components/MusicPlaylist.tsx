@@ -8,43 +8,43 @@ const mockMusicData = [
     title: 'Death Bed',
     artist: 'Powfu',
     artwork: 'https://samplesongs.netlify.app/album-arts/death-bed.jpg',
-    url: 'https://samplesongs.netlify.app/Death%20Bed.mp3'
+    url: 'https://samplesongs.netlify.app/Death%20Bed.mp3',
   },
   {
     id: '2',
     title: 'Bad Liar',
     artist: 'Imagine Dragons',
     artwork: 'https://samplesongs.netlify.app/album-arts/bad-liar.jpg',
-    url: 'https://samplesongs.netlify.app/Bad%20Liar.mp3'
+    url: 'https://samplesongs.netlify.app/Bad%20Liar.mp3',
   },
   {
     id: '3',
     title: 'Faded',
     artist: 'Alan Walker',
     artwork: 'https://samplesongs.netlify.app/album-arts/faded.jpg',
-    url: 'https://samplesongs.netlify.app/Faded.mp3'
+    url: 'https://samplesongs.netlify.app/Faded.mp3',
   },
   {
     id: '4',
     title: 'Hate Me',
     artist: 'Ellie Goulding',
     artwork: 'https://samplesongs.netlify.app/album-arts/hate-me.jpg',
-    url: 'https://samplesongs.netlify.app/Hate%20Me.mp3'
+    url: 'https://samplesongs.netlify.app/Hate%20Me.mp3',
   },
   {
     id: '5',
     title: 'Solo',
     artist: 'Clean Bandit',
     artwork: 'https://samplesongs.netlify.app/album-arts/solo.jpg',
-    url: 'https://samplesongs.netlify.app/Solo.mp3'
+    url: 'https://samplesongs.netlify.app/Solo.mp3',
   },
   {
     id: '6',
     title: 'Without Me',
     artist: 'Halsey',
     artwork: 'https://samplesongs.netlify.app/album-arts/without-me.jpg',
-    url: 'https://samplesongs.netlify.app/Without%20Me.mp3'
-  }
+    url: 'https://samplesongs.netlify.app/Without%20Me.mp3',
+  },
 ];
 
 interface CircularProgressProps {
@@ -54,18 +54,19 @@ interface CircularProgressProps {
   children: React.ReactNode;
 }
 
-const CircularProgress: React.FC<CircularProgressProps> = ({ progress, size, strokeWidth, children }) => {
+const CircularProgress: React.FC<CircularProgressProps> = ({
+  progress,
+  size,
+  strokeWidth,
+  children,
+}) => {
   const radius = (size - strokeWidth) / 2;
   const circumference = radius * 2 * Math.PI;
   const offset = circumference - (progress / 100) * circumference;
 
   return (
     <div className="relative" style={{ width: size, height: size }}>
-      <svg
-        className="absolute inset-0 transform -rotate-90"
-        width={size}
-        height={size}
-      >
+      <svg className="absolute inset-0 transform -rotate-90" width={size} height={size}>
         {/* Background circle */}
         <circle
           cx={size / 2}
@@ -90,9 +91,7 @@ const CircularProgress: React.FC<CircularProgressProps> = ({ progress, size, str
           strokeLinecap="round"
         />
       </svg>
-      <div className="absolute inset-0 flex items-center justify-center">
-        {children}
-      </div>
+      <div className="absolute inset-0 flex items-center justify-center">{children}</div>
     </div>
   );
 };
@@ -100,7 +99,7 @@ const CircularProgress: React.FC<CircularProgressProps> = ({ progress, size, str
 const MusicPlaylist: React.FC = () => {
   const { currentTrack, isPlaying, progress, playTrack } = useAudioPlayer();
 
-  const handlePlayPause = (track: typeof mockMusicData[0]) => {
+  const handlePlayPause = (track: (typeof mockMusicData)[0]) => {
     playTrack(track);
   };
 
@@ -165,19 +164,21 @@ const MusicPlaylist: React.FC = () => {
 
               {/* Track Info */}
               <div className="mt-3 space-y-1">
-                <h3 className={`font-semibold text-sm leading-tight transition-colors duration-200 ${
-                  isCurrentTrack ? 'text-primary' : 'text-foreground'
-                }`}>
+                <h3
+                  className={`font-semibold text-sm leading-tight transition-colors duration-200 ${
+                    isCurrentTrack ? 'text-primary' : 'text-foreground'
+                  }`}
+                >
                   {track.title}
                 </h3>
-                <p className="text-xs text-muted-foreground">
-                  {track.artist}
-                </p>
+                <p className="text-xs text-muted-foreground">{track.artist}</p>
                 {isCurrentTrack && (
                   <div className="flex items-center gap-2 text-xs">
-                    <div className={`w-1.5 h-1.5 rounded-full ${
-                      isPlaying ? 'bg-green-500 animate-pulse' : 'bg-yellow-500'
-                    }`} />
+                    <div
+                      className={`w-1.5 h-1.5 rounded-full ${
+                        isPlaying ? 'bg-green-500 animate-pulse' : 'bg-yellow-500'
+                      }`}
+                    />
                     <span className="text-muted-foreground">
                       {isPlaying ? 'Now Playing' : 'Paused'}
                     </span>

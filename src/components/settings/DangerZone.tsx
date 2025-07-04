@@ -23,20 +23,20 @@ const DangerZone: React.FC = () => {
     setIsDeleting(true);
     try {
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, 2000));
 
       toast({
-        title: "Account Deleted",
-        description: "Your account has been permanently deleted.",
-        variant: "destructive",
+        title: 'Account Deleted',
+        description: 'Your account has been permanently deleted.',
+        variant: 'destructive',
       });
 
       // In a real app, you would redirect to login or home page
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to delete account. Please try again.",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Failed to delete account. Please try again.',
+        variant: 'destructive',
       });
     } finally {
       setIsDeleting(false);
@@ -69,10 +69,12 @@ const DangerZone: React.FC = () => {
             </AlertDialogTrigger>
             <AlertDialogContent className="glass-card border-border/40 text-foreground">
               <AlertDialogHeader>
-                <AlertDialogTitle className="text-foreground">Are you absolutely sure?</AlertDialogTitle>
+                <AlertDialogTitle className="text-foreground">
+                  Are you absolutely sure?
+                </AlertDialogTitle>
                 <AlertDialogDescription className="text-muted-foreground">
-                  This action cannot be undone. This will permanently delete your account
-                  and remove all your data from our servers.
+                  This action cannot be undone. This will permanently delete your account and remove
+                  all your data from our servers.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>

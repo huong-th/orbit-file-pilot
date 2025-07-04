@@ -10,13 +10,16 @@ interface FingerprintLoginTabProps {
 
 const FingerprintLoginTab: React.FC<FingerprintLoginTabProps> = ({
   onFingerprintLogin,
-  isLoading
+  isLoading,
 }) => {
   const { t } = useTranslation();
 
   return (
     <div className="text-center py-8">
-      <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center hover-scale cursor-pointer" onClick={onFingerprintLogin}>
+      <div
+        className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center hover-scale cursor-pointer"
+        onClick={onFingerprintLogin}
+      >
         <Fingerprint className="w-12 h-12 text-white" />
       </div>
       <h3 className="text-lg font-semibold mb-2">Touch to Login</h3>
@@ -31,9 +34,6 @@ const FingerprintLoginTab: React.FC<FingerprintLoginTabProps> = ({
         <Fingerprint className="w-4 h-4 mr-2" />
         Authenticate with Fingerprint
       </Button>
-      <p className="text-xs text-muted-foreground mt-4">
-        Demo: 70% success rate simulation
-      </p>
     </div>
   );
 };

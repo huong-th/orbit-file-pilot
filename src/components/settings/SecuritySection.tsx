@@ -1,53 +1,61 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import React from 'react';
 import { Trash2, Shield } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-
-interface Passkey {
-  id: string;
-  name: string;
-  createdAt: string;
-}
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useAppDispatch, useAppSelector } from '@/hooks/redux'; // Import hooks Redux
+import { registerNewPasskey } from '@/store/slices/authSlice'; // Import thunk mới
+import { removePasskey } from '@/store/slices/passkeySlice'; // Import action và kiểu từ passkeySlice
 
 const SecuritySection: React.FC = () => {
   const { toast } = useToast();
-  const [passkeys, setPasskeys] = useState<Passkey[]>([
-    { id: '1', name: 'iPhone 15 Pro', createdAt: '2024-01-15' },
-    { id: '2', name: 'MacBook Pro', createdAt: '2024-01-10' },
-  ]);
+  const dispatch = useAppDispatch();
+  const passkeys = useAppSelector((state) => state.passkey.passkeys);
+  const { isLoading, error } = useAppSelector((state) => state.auth); // Lấy trạng thái loading/error từ auth slice
 
   const handleRegisterPasskey = async () => {
-    try {
-      // Simulate WebAuthn registration
-      await new Promise(resolve => setTimeout(resolve, 1000));
+    const userEmail = 'john.doe@example.com'; // Thay thế bằng email người dùng thực tế
 
-      const newPasskey: Passkey = {
-        id: Date.now().toString(),
-        name: 'New Device',
-        createdAt: new Date().toISOString().split('T')[0],
-      };
-
-      setPasskeys(prev => [...prev, newPasskey]);
-
+    if (!userEmail) {
       toast({
-        title: "Success",
-        description: "Passkey registered successfully.",
+        title: 'Error',
+        description: 'User email not found. Please log in first.',
+        variant: 'destructive',
       });
-    } catch (error) {
+      return;
+    }
+
+    try {
+      // Dispatch thunk để đăng ký passkey
+      const resultAction = await dispatch(registerNewPasskey({ email: userEmail }));
+
+      if (registerNewPasskey.fulfilled.match(resultAction)) {
+        toast({
+          title: 'Success',
+          description: 'Passkey registered successfully.',
+        });
+      } else if (registerNewPasskey.rejected.match(resultAction)) {
+        toast({
+          title: 'Error',
+          description: resultAction.payload as string,
+          variant: 'destructive',
+        });
+      }
+    } catch (err: any) {
       toast({
-        title: "Error",
-        description: "Failed to register passkey. Please try again.",
-        variant: "destructive",
+        title: 'Error',
+        description: err.message || 'Failed to register passkey. An unexpected error occurred.',
+        variant: 'destructive',
       });
     }
   };
 
   const handleRemovePasskey = (id: string) => {
-    setPasskeys(prev => prev.filter(p => p.id !== id));
+    // Dispatch action để xóa passkey khỏi Redux store
+    dispatch(removePasskey(id));
     toast({
-      title: "Success",
-      description: "Passkey removed successfully.",
+      title: 'Success',
+      description: 'Passkey removed successfully.',
     });
   };
 
@@ -64,14 +72,15 @@ const SecuritySection: React.FC = () => {
         <p className="text-sm text-muted-foreground">
           Use passkeys for secure, passwordless authentication.
         </p>
-
         <Button
           onClick={handleRegisterPasskey}
           className="w-full h-11 bg-primary hover:bg-primary/90 text-primary-foreground font-medium rounded-lg"
+          disabled={isLoading}
         >
-          Register New Passkey
+          {isLoading ? 'Registering...' : 'Register New Passkey'}
         </Button>
-
+        {error && <p className="text-sm text-destructive mt-2">{error}</p>}{' '}
+        {/* Hiển thị lỗi nếu có */}
         {passkeys.length > 0 && (
           <div className="space-y-3">
             <h4 className="text-sm font-medium text-foreground">Registered Passkeys</h4>

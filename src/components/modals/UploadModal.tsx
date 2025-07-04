@@ -1,14 +1,26 @@
 import React, { useState } from 'react';
 import { Upload, FileText, X } from 'lucide-react';
-import { useFileManager } from '@/contexts/FileManagerContext';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '@/store/store';
+import { closeModal } from '@/store/slices/uiSlice';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
 
 const UploadModal: React.FC = () => {
-  const { modals, closeModal } = useFileManager();
+  const dispatch = useDispatch();
+  const isOpen = useSelector((state: RootState) => state.ui.modals.upload);
+
+  /* ---- local state now stores DOM File objects ---- */
   const [dragActive, setDragActive] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
 
+  /* ---- drag-and-drop helpers ---- */
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -24,45 +36,49 @@ const UploadModal: React.FC = () => {
     e.stopPropagation();
     setDragActive(false);
 
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+    if (e.dataTransfer.files && e.dataTransfer.files.length) {
       const files = Array.from(e.dataTransfer.files);
-      setSelectedFiles(prev => [...prev, ...files]);
+      setSelectedFiles((prev) => [...prev, ...files]);
     }
   };
 
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const files = Array.from(e.target.files);
-      setSelectedFiles(prev => [...prev, ...files]);
+      setSelectedFiles((prev) => [...prev, ...files]);
     }
   };
 
   const removeFile = (index: number) => {
-    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleUpload = () => {
-    // Here you would typically upload the files
+    // TODO: build FormData & call API
     console.log('Uploading files:', selectedFiles);
     setSelectedFiles([]);
-    closeModal('upload');
+    dispatch(closeModal('upload'));
   };
 
   const handleClose = () => {
     setSelectedFiles([]);
-    closeModal('upload');
+    dispatch(closeModal('upload'));
   };
 
+  /* ---- pretty file-size helper ---- */
   const formatFileSize = (bytes: number) => {
     if (bytes === 0) return '0 B';
     const k = 1024;
     const sizes = ['B', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    return `${(bytes / Math.pow(k, i)).toFixed(2)} ${sizes[i]}`;
   };
 
+  /* -------------------------------------------------------------------- */
+  /*                               render                                 */
+  /* -------------------------------------------------------------------- */
   return (
-    <Dialog open={modals.upload} onOpenChange={handleClose}>
+    <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
@@ -72,7 +88,7 @@ const UploadModal: React.FC = () => {
         </DialogHeader>
 
         <div className="space-y-4">
-          {/* Drag & Drop Area */}
+          {/* Drag & drop area */}
           <div
             className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
               dragActive
@@ -93,11 +109,11 @@ const UploadModal: React.FC = () => {
             </p>
 
             <input
+              id="file-upload"
               type="file"
               multiple
               onChange={handleFileInput}
               className="hidden"
-              id="file-upload"
             />
             <label
               htmlFor="file-upload"
@@ -108,19 +124,19 @@ const UploadModal: React.FC = () => {
             </label>
           </div>
 
-          {/* Selected Files */}
+          {/* Selected file list */}
           {selectedFiles.length > 0 && (
             <div className="space-y-2 max-h-48 overflow-y-auto">
               <h4 className="font-medium text-gray-900 dark:text-white">
                 Selected Files ({selectedFiles.length})
               </h4>
-              {selectedFiles.map((file, index) => (
+              {selectedFiles.map((file, idx) => (
                 <div
-                  key={index}
+                  key={idx}
                   className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-700 rounded-lg"
                 >
                   <div className="flex items-center gap-2 min-w-0 flex-1">
-                    <FileText className="w-4 h-4 text-gray-500 flex-shrink-0" />
+                    <FileText className="w-4 h-4 text-gray-500" />
                     <div className="min-w-0 flex-1">
                       <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
                         {file.name}
@@ -133,7 +149,7 @@ const UploadModal: React.FC = () => {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => removeFile(index)}
+                    onClick={() => removeFile(idx)}
                     className="text-gray-500 hover:text-red-500 p-1"
                   >
                     <X className="w-4 h-4" />

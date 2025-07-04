@@ -1,9 +1,9 @@
 import React from 'react';
-import { FileItem } from '@/contexts/FileManagerContext';
+import { DriveItem } from '@/types/files';
 import FileCard from '@/components/FileCard';
 
 interface FileGridProps {
-  files: FileItem[];
+  files: DriveItem[];
 }
 
 const FileGrid: React.FC<FileGridProps> = ({ files }) => {

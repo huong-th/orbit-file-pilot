@@ -1,60 +1,67 @@
 import React, { useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { X, Download, Edit, Trash2 } from 'lucide-react';
-import { useFileManager } from '@/contexts/FileManagerContext';
-import { Button } from '@/components/ui/button';
+import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { X, Download, Edit, Trash2 } from 'lucide-react';
+
+import { closeModal, openModal } from '@/store/slices/uiSlice'; // manages `modals.preview`
+import { setRenameItem, setDeleteItems } from '@/store/slices/uiSlice'; // holds preview helpers
 
 const VideoPlayerModal: React.FC = () => {
-  const { modals, closeModal, previewFile, setRenameItem, setDeleteItems, openModal } = useFileManager();
   const { t } = useTranslation();
+  const dispatch = useAppDispatch();
+
+  /* ---------- Redux state ---------- */
+  const modals = useAppSelector((s) => s.ui.modals);
+  const previewFile = useAppSelector((s) => s.ui.previewFile);
+
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  const isVideoFile = previewFile?.type === 'file' &&
-    (previewFile.icon === '🎥' || !!previewFile.name.match(/\.(mp4|mov|avi|mkv|webm|m4v|3gp)$/i));
+  const isVideoFile =
+    previewFile?.kind === 'file' &&
+    (previewFile.mime_type?.startsWith('video') ||
+      !!previewFile.name.match(/\.(mp4|mov|avi|mkv|webm|m4v|3gp)$/i));
 
-  const shouldShowModal = modals.preview && isVideoFile;
+  const shouldShow = modals.preview && isVideoFile;
 
+  /* ---------- reset currentTime on open ---------- */
   useEffect(() => {
-    if (shouldShowModal && videoRef.current) {
-      // Reset video when modal opens
+    if (shouldShow && videoRef.current) {
       videoRef.current.currentTime = 0;
     }
-  }, [shouldShowModal, previewFile?.id]);
+  }, [shouldShow, previewFile?.id]);
 
+  /* ---------- actions ---------- */
   const handleRename = () => {
-    if (previewFile) {
-      setRenameItem(previewFile);
-      closeModal('preview');
-      openModal('rename');
-    }
+    if (!previewFile) return;
+    dispatch(setRenameItem(previewFile));
+    dispatch(closeModal('preview'));
+    dispatch(openModal('rename'));
   };
 
   const handleDelete = () => {
-    if (previewFile) {
-      setDeleteItems([previewFile]);
-      closeModal('preview');
-      openModal('delete');
-    }
+    if (!previewFile) return;
+    dispatch(setDeleteItems([previewFile]));
+    dispatch(closeModal('preview'));
+    dispatch(openModal('delete'));
   };
 
   const handleDownload = () => {
-    if (previewFile?.videoUrl) {
-      const link = document.createElement('a');
-      link.href = previewFile.videoUrl;
-      link.download = previewFile.name;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+    if (previewFile?.object_key) {
+      const a = document.createElement('a');
+      a.href = previewFile.object_key; // presigned URL in real app
+      a.download = previewFile.name;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
     }
   };
 
-  if (!shouldShowModal || !previewFile) {
-    return null;
-  }
+  if (!shouldShow || !previewFile) return null;
 
   return (
-    <Dialog open={shouldShowModal} onOpenChange={() => closeModal('preview')}>
+    <Dialog open={shouldShow} onOpenChange={() => dispatch(closeModal('preview'))}>
       <DialogContent className="max-w-6xl w-full h-[90vh] p-0 bg-black/95 border-border/20">
         <div className="flex flex-col h-full">
           {/* Header */}
@@ -64,17 +71,17 @@ const VideoPlayerModal: React.FC = () => {
                 <DialogTitle className="text-xl font-semibold text-white">
                   {previewFile.name}
                 </DialogTitle>
-                {previewFile.subtitle && (
-                  <p className="text-sm text-gray-300">{previewFile.subtitle}</p>
-                )}
-                {previewFile.description && (
-                  <p className="text-sm text-gray-400 max-w-2xl line-clamp-2">
-                    {previewFile.description}
-                  </p>
-                )}
+                {/*{previewFile.subtitle && (*/}
+                {/*  <p className="text-sm text-gray-300">{previewFile.subtitle}</p>*/}
+                {/*)}*/}
+                {/*{previewFile.description && (*/}
+                {/*  <p className="text-sm text-gray-400 max-w-2xl line-clamp-2">*/}
+                {/*    {previewFile.description}*/}
+                {/*  </p>*/}
+                {/*)}*/}
                 <div className="flex items-center gap-4 text-xs text-gray-500">
                   <span>{previewFile.size}</span>
-                  <span>{previewFile.lastModified}</span>
+                  <span>{previewFile.updatedAt}</span>
                 </div>
               </div>
 
@@ -110,7 +117,7 @@ const VideoPlayerModal: React.FC = () => {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => closeModal('preview')}
+                  onClick={() => dispatch(closeModal('preview'))}
                   className="text-white hover:bg-white/10"
                 >
                   <X className="w-4 h-4" />
@@ -122,26 +129,20 @@ const VideoPlayerModal: React.FC = () => {
           {/* Video Player */}
           <div className="flex-1 flex items-center justify-center p-6">
             <div className="w-full max-w-5xl">
-              {previewFile.videoUrl ? (
+              {previewFile.object_key ? (
                 <video
                   ref={videoRef}
                   controls
                   className="w-full h-auto max-h-[60vh] rounded-lg shadow-2xl"
-                  poster={previewFile.thumbnail}
+                  poster={previewFile.thumbnailUrl}
                   preload="metadata"
                 >
-                  <source src={previewFile.videoUrl} type="video/mp4" />
-                  <p className="text-white">
-                    Your browser does not support the video tag.
-                  </p>
+                  <source src={previewFile.object_key} type={previewFile.mime_type} />
+                  <p className="text-white">{t('fileManager.previewNotAvailable')}</p>
                 </video>
               ) : (
-                <div className="w-full h-[60vh] bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg flex items-center justify-center">
-                  <div className="text-center text-white">
-                    <div className="text-6xl mb-4">{previewFile.icon}</div>
-                    <p className="text-lg mb-2">Video preview not available</p>
-                    <p className="text-sm text-gray-400">File: {previewFile.name}</p>
-                  </div>
+                <div className="w-full h-[60vh] bg-gray-800 rounded-lg flex items-center justify-center text-white">
+                  {t('fileManager.previewNotAvailable')}
                 </div>
               )}
             </div>

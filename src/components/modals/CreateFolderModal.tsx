@@ -1,32 +1,42 @@
 import React, { useState } from 'react';
-import { useFileManager } from '@/contexts/FileManagerContext';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { useDispatch, useSelector } from 'react-redux';
+import { FolderPlus } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { FolderPlus } from 'lucide-react';
+import type { RootState, AppDispatch } from '@/store/store.ts';
+import { closeModal } from '@/store/slices/uiSlice';
+// TODO: import createFolder thunk when backend is ready
+import { createFolder } from '@/store/slices/fileSystemThunks';
 
 const CreateFolderModal: React.FC = () => {
-  const { modals, closeModal } = useFileManager();
+  const dispatch = useDispatch<AppDispatch>();
+  const isOpen = useSelector((s: RootState) => s.ui.modals.createFolder);
   const [folderName, setFolderName] = useState('');
+
+  const resetAndClose = () => {
+    setFolderName('');
+    dispatch(closeModal('createFolder'));
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (folderName.trim()) {
-      // Here you would typically create the folder
-      console.log('Creating folder:', folderName);
-      setFolderName('');
-      closeModal('createFolder');
-    }
-  };
+    if (!folderName.trim()) return;
 
-  const handleClose = () => {
-    setFolderName('');
-    closeModal('createFolder');
+    // TODO: dispatch(createFolder({ name: folderName, parentId: currentFolderId }))
+    dispatch(createFolder({ name: folderName, parentId: 'currentFolderId' }));
+    resetAndClose();
   };
 
   return (
-    <Dialog open={modals.createFolder} onOpenChange={handleClose}>
+    <Dialog open={isOpen} onOpenChange={resetAndClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
@@ -50,11 +60,7 @@ const CreateFolderModal: React.FC = () => {
           </div>
 
           <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleClose}
-            >
+            <Button type="button" variant="outline" onClick={resetAndClose}>
               Cancel
             </Button>
             <Button

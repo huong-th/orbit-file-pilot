@@ -1,9 +1,7 @@
 import axios, { AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import Cookies from 'js-cookie';
-import { store } from '@/store/store';
-import { logout } from '@/store/authSlice';
 
-const API_BASE_URL = 'http://localhost:3000';
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 // Create axios instance
 const api = axios.create({
@@ -49,7 +47,7 @@ api.interceptors.response.use(
       if (refreshToken) {
         try {
           // Try to refresh the token
-          const refreshResponse = await axios.post(`${API_BASE_URL}/auth/refresh-token`, {
+          const refreshResponse = await axios.post(`${API_BASE_URL}/auth/refresh`, {
             refreshToken,
           });
 
@@ -59,7 +57,7 @@ api.interceptors.response.use(
           Cookies.set('access_token', access_token, {
             expires: 7, // 7 ngày
             secure: window.location.protocol === 'https:',
-            sameSite: 'strict' as const
+            sameSite: 'strict' as const,
           });
 
           // Update the authorization header for the original request

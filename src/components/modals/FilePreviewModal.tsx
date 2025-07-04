@@ -1,180 +1,149 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useFileManager } from '../../contexts/FileManagerContext';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
-import { Button } from '../ui/button';
+import { useAppDispatch, useAppSelector } from '@/hooks/redux';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 import { Download, Edit, Trash2, X, ChevronLeft, ChevronRight } from 'lucide-react';
+
+import { closeModal, openModal } from '@/store/slices/uiSlice'; // ▶︎ contains modals.preview state
+import { setPreviewFile, setRenameItem, setDeleteItems } from '@/store/slices/uiSlice'; // ▶︎ holds previewFile & helpers
+
+import { buildPaginationKey } from '@/lib/utils';
 import VideoPlayerModal from './VideoPlayerModal';
 
-// Office Document Preview Component
+/* ────────────────────────── helper preview comps ─────────────────────────── */
 const OfficePreview = ({ fileUrl }: { fileUrl: string }) => {
-  const encodedUrl = encodeURIComponent(fileUrl);
-  const viewerUrl = `https://view.officeapps.live.com/op/view.aspx?src=${encodedUrl}`;
-
+  const viewer = `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(fileUrl)}`;
   return (
     <iframe
-      src={viewerUrl}
+      src={viewer}
       width="100%"
-      height="600px"
-      frameBorder="0"
-      title="Office File Preview"
+      height="600"
+      title="Office Preview"
       className="rounded-lg border border-border/30"
     />
   );
 };
 
-// PDF Preview Component
-const PDFPreview = ({ fileUrl }: { fileUrl: string }) => {
-  return (
-    <iframe
-      src={fileUrl}
-      width="100%"
-      height="600px"
-      frameBorder="0"
-      title="PDF Preview"
-      className="rounded-lg border border-border/30"
-    />
-  );
-};
+const PDFPreview = ({ fileUrl }: { fileUrl: string }) => (
+  <iframe
+    src={fileUrl}
+    width="100%"
+    height="600"
+    title="PDF Preview"
+    className="rounded-lg border border-border/30"
+  />
+);
 
+/* ───────────────────────────────── component ─────────────────────────────── */
 const FilePreviewModal: React.FC = () => {
-  const { modals, closeModal, previewFile, setRenameItem, setDeleteItems, openModal, displayedFiles, setPreviewFile } = useFileManager();
   const { t } = useTranslation();
-  const [preloadedImages, setPreloadedImages] = useState<{ [key: string]: string }>({});
+  const dispatch = useAppDispatch();
 
-  // Get list of image files from current view
-  const imageFiles = displayedFiles.filter(file =>
-    file.type === 'file' && (file.icon === '🖼️' || file.name.match(/\.(jpg|jpeg|png|gif|bmp|webp)$/i))
+  /* ---------- Redux state ---------- */
+  const modals = useAppSelector((s) => s.ui.modals);
+  const previewFile = useAppSelector((s) => s.ui.previewFile);
+  const currentFilter = useAppSelector((s) => s.view.currentFilter);
+  const folderId = useAppSelector((s) => s.navigation.currentFolderId);
+
+  /** build displayed files list (same as MainContent) */
+  const key = buildPaginationKey(folderId, currentFilter);
+  const fileIds = useAppSelector((s) => s.fileSystem.filesByFolder[key] ?? []);
+  const displayedFiles = useAppSelector((s) =>
+    fileIds.map((id) => s.fileSystem.fileById[id]).filter(Boolean)
   );
 
-  // Find current image index
-  const currentImageIndex = previewFile ? imageFiles.findIndex(file => file.id === previewFile.id) : -1;
+  /* ---------- local state for image pre-load ---------- */
+  const [cache, setCache] = useState<Record<string, string>>({});
+
+  /* ---------- list of images in view ---------- */
+  const imageFiles = displayedFiles.filter(
+    (f) =>
+      f.kind === 'file' &&
+      (f.name.match(/\.(jpg|jpeg|png|gif|bmp|webp)$/i) || f.mime_type?.startsWith('image'))
+  );
+
+  const currentIndex = previewFile ? imageFiles.findIndex((f) => f.id === previewFile.id) : -1;
   const totalImages = imageFiles.length;
 
-  // Navigation functions
-  const goToNextImage = useCallback(() => {
-    if (currentImageIndex < totalImages - 1) {
-      setPreviewFile(imageFiles[currentImageIndex + 1]);
-    } else if (totalImages > 0) {
-      // Wrap around to first image
-      setPreviewFile(imageFiles[0]);
-    }
-  }, [currentImageIndex, totalImages, imageFiles, setPreviewFile]);
+  /* ---------- navigation helpers ---------- */
+  const showNext = useCallback(() => {
+    if (!totalImages) return;
+    const next = currentIndex < totalImages - 1 ? currentIndex + 1 : 0;
+    dispatch(setPreviewFile(imageFiles[next]));
+  }, [dispatch, currentIndex, totalImages, imageFiles]);
 
-  const goToPreviousImage = useCallback(() => {
-    if (currentImageIndex > 0) {
-      setPreviewFile(imageFiles[currentImageIndex - 1]);
-    } else if (totalImages > 0) {
-      // Wrap around to last image
-      setPreviewFile(imageFiles[totalImages - 1]);
-    }
-  }, [currentImageIndex, totalImages, imageFiles, setPreviewFile]);
+  const showPrev = useCallback(() => {
+    if (!totalImages) return;
+    const prev = currentIndex > 0 ? currentIndex - 1 : totalImages - 1;
+    dispatch(setPreviewFile(imageFiles[prev]));
+  }, [dispatch, currentIndex, totalImages, imageFiles]);
 
-  // Keyboard navigation
+  /* ---------- keyboard nav ---------- */
   useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
+    const keyHandler = (e: KeyboardEvent) => {
       if (!modals.preview) return;
-
-      switch (event.key) {
-        case 'ArrowLeft':
-          event.preventDefault();
-          goToPreviousImage();
-          break;
-        case 'ArrowRight':
-          event.preventDefault();
-          goToNextImage();
-          break;
-        case 'Escape':
-          event.preventDefault();
-          handleClose();
-          break;
-      }
+      if (e.key === 'ArrowLeft') showPrev();
+      if (e.key === 'ArrowRight') showNext();
+      if (e.key === 'Escape') dispatch(closeModal('preview'));
     };
+    window.addEventListener('keydown', keyHandler);
+    return () => window.removeEventListener('keydown', keyHandler);
+  }, [modals.preview, showNext, showPrev, dispatch]);
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [modals.preview, goToNextImage, goToPreviousImage]);
-
-  // Preload adjacent images
+  /* ---------- preload neighbour images ---------- */
   useEffect(() => {
     if (!previewFile || totalImages <= 1) return;
 
-    const preloadImage = (file: any) => {
-      if (preloadedImages[file.id]) return;
-
+    const preload = (fileId: string) => {
+      if (cache[fileId]) return;
+      const url = `https://picsum.photos/800/600?random=${fileId}`;
       const img = new Image();
-      const imageUrl = `https://picsum.photos/800/600?random=${file.id}`;
-      img.src = imageUrl;
-      img.onload = () => {
-        setPreloadedImages(prev => ({ ...prev, [file.id]: imageUrl }));
-      };
+      img.src = url;
+      img.onload = () => setCache((c) => ({ ...c, [fileId]: url }));
     };
 
-    // Preload next image
-    const nextIndex = currentImageIndex < totalImages - 1 ? currentImageIndex + 1 : 0;
-    if (imageFiles[nextIndex]) {
-      preloadImage(imageFiles[nextIndex]);
-    }
+    const nextIdx = currentIndex < totalImages - 1 ? currentIndex + 1 : 0;
+    const prevIdx = currentIndex > 0 ? currentIndex - 1 : totalImages - 1;
+    preload(imageFiles[nextIdx]?.id);
+    preload(imageFiles[prevIdx]?.id);
+  }, [previewFile, currentIndex, totalImages, imageFiles, cache]);
 
-    // Preload previous image
-    const prevIndex = currentImageIndex > 0 ? currentImageIndex - 1 : totalImages - 1;
-    if (imageFiles[prevIndex]) {
-      preloadImage(imageFiles[prevIndex]);
-    }
-  }, [currentImageIndex, totalImages, imageFiles, preloadedImages, previewFile]);
-
+  /* ---------- action handlers ---------- */
   const handleRename = () => {
-    if (previewFile) {
-      setRenameItem(previewFile);
-      closeModal('preview');
-      openModal('rename');
-    }
+    if (!previewFile) return;
+    dispatch(setRenameItem(previewFile));
+    dispatch(closeModal('preview'));
+    dispatch(openModal('rename'));
   };
 
   const handleDelete = () => {
-    if (previewFile) {
-      setDeleteItems([previewFile]);
-      closeModal('preview');
-      openModal('delete');
-    }
+    if (!previewFile) return;
+    dispatch(setDeleteItems([previewFile]));
+    dispatch(closeModal('preview'));
+    dispatch(openModal('delete'));
   };
 
-  const handleClose = () => {
-    closeModal('preview');
-  };
+  const handleClose = () => dispatch(closeModal('preview'));
 
+  /* ---------- type guards ---------- */
   if (!previewFile) return null;
 
-  const isImageFile = previewFile.type === 'file' && (previewFile.icon === '🖼️' || !!previewFile.name.match(/\.(jpg|jpeg|png|gif|bmp|webp)$/i));
-  const isVideoFile = previewFile?.type === 'file' &&
-    (previewFile.icon === '🎥' || !!previewFile.name.match(/\.(mp4|mov|avi|mkv|webm|m4v|3gp)$/i));
+  const isImage = previewFile.kind === 'file' && imageFiles.length;
+  const isVideo = previewFile.kind === 'file' && previewFile.mime_type?.startsWith('video');
 
-  // Check for document files
-  const isPDFFile = previewFile?.type === 'file' &&
-    (previewFile.icon === '📄' || !!previewFile.name.match(/\.pdf$/i));
-  const isOfficeFile = previewFile?.type === 'file' &&
-    !!previewFile.name.match(/\.(doc|docx|xls|xlsx|ppt|pptx)$/i);
-  const isDocumentFile = isPDFFile || isOfficeFile;
+  const isPDF = previewFile.kind === 'file' && previewFile.mime_type === 'application/pdf';
+  const isOffice =
+    previewFile.kind === 'file' && !!previewFile.name.match(/\.(docx?|pptx?|xlsx?)$/i);
 
-  // Show VideoPlayerModal for videos
-  if (modals.preview && isVideoFile) {
-    return <VideoPlayerModal />;
-  }
+  /* ---- delegate to video modal ---- */
+  if (modals.preview && isVideo) return <VideoPlayerModal />;
 
-  if (!modals.preview || !previewFile) {
-    return null;
-  }
-
-  // Generate mock document URL for preview
-  const getDocumentPreviewUrl = () => {
-    if (isPDFFile) {
-      return `https://mozilla.github.io/pdf.js/web/compressed.tracemonkey-pldi-09.pdf`;
-    }
-    // For Office files, use a mock URL - in real app this would be the actual file URL
-    return `https://file-examples.com/storage/fe86d5c8c20d6fc2c5b46c6/2017/10/file_example_PPT_1MB.pptx`;
-  };
-
-  const currentImageUrl = preloadedImages[previewFile.id] || previewFile.thumbnail || `https://picsum.photos/800/600?random=${previewFile.id}`;
+  /* ---- main render ---- */
+  const imgUrl =
+    cache[previewFile.id] ||
+    previewFile.thumbnailUrl ||
+    `https://picsum.photos/800/600?random=${previewFile.id}`;
 
   return (
     <Dialog open={modals.preview} onOpenChange={handleClose}>
@@ -182,122 +151,75 @@ const FilePreviewModal: React.FC = () => {
         <DialogHeader>
           <div className="flex items-center justify-between">
             <DialogTitle className="flex items-center gap-2">
-              <span className="text-2xl">{previewFile.icon}</span>
-              {previewFile.name}
-              {isImageFile && totalImages > 1 && (
+              <span className="text-2xl">{previewFile.name}</span>
+              {isImage && totalImages > 1 && (
                 <span className="text-sm text-muted-foreground ml-2">
-                  {currentImageIndex + 1} {t('common.of')} {totalImages}
+                  {currentIndex + 1} {t('common.of')} {totalImages}
                 </span>
               )}
             </DialogTitle>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleClose}
+              className="text-muted-foreground hover:text-foreground"
+            >
+              <X className="w-4 h-4" />
+            </Button>
           </div>
         </DialogHeader>
 
+        {/* PREVIEW AREA */}
         <div className="space-y-6">
-          {/* File Preview Area */}
-          <div className="relative bg-gradient-to-br from-muted/20 to-muted/10 rounded-xl flex items-center justify-center border border-border/40 overflow-hidden">
-            {isImageFile ? (
+          <div className="relative bg-muted/20 rounded-xl border border-border/40 flex justify-center">
+            {isImage ? (
               <>
-                <div className="aspect-video w-full flex items-center justify-center">
-                  <img
-                    src={currentImageUrl}
-                    alt={previewFile.name}
-                    className="max-w-full max-h-full object-contain rounded-lg transition-all duration-300 ease-out"
-                    loading="lazy"
-                  />
-                </div>
-
-                {/* Navigation Arrows - Only show if there are multiple images */}
+                <img
+                  src={imgUrl}
+                  alt={previewFile.name}
+                  className="max-w-full max-h-[70vh] object-contain"
+                />
                 {totalImages > 1 && (
                   <>
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={goToPreviousImage}
-                      className="absolute left-4 top-1/2 -translate-y-1/2 bg-background/80 backdrop-blur-sm border border-border/40 hover:bg-background/90 transition-all duration-200 hover:scale-105"
+                      onClick={showPrev}
+                      className="absolute left-4 top-1/2 -translate-y-1/2 bg-background/80 backdrop-blur-sm"
                     >
                       <ChevronLeft className="w-5 h-5" />
                     </Button>
-
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={goToNextImage}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 bg-background/80 backdrop-blur-sm border border-border/40 hover:bg-background/90 transition-all duration-200 hover:scale-105"
+                      onClick={showNext}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 bg-background/80 backdrop-blur-sm"
                     >
                       <ChevronRight className="w-5 h-5" />
                     </Button>
                   </>
                 )}
-
-                {/* Image Counter Overlay */}
-                {totalImages > 1 && (
-                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-background/80 backdrop-blur-sm border border-border/40 rounded-full px-3 py-1 text-sm text-foreground">
-                    {currentImageIndex + 1} / {totalImages}
-                  </div>
-                )}
               </>
-            ) : isDocumentFile ? (
-              <div className="w-full">
-                {isPDFFile ? (
-                  <PDFPreview fileUrl={getDocumentPreviewUrl()} />
-                ) : isOfficeFile ? (
-                  <OfficePreview fileUrl={getDocumentPreviewUrl()} />
-                ) : null}
-              </div>
+            ) : isPDF ? (
+              <PDFPreview fileUrl={previewFile.object_key} />
+            ) : isOffice ? (
+              <OfficePreview fileUrl={previewFile.object_key} />
             ) : (
-              <div className="text-center aspect-video flex items-center justify-center">
-                <div>
-                  <div className="text-6xl mb-4">{previewFile.icon}</div>
-                  <p className="text-lg font-medium text-foreground">
-                    {t('fileManager.filePreview')}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    {t('fileManager.previewNotAvailable')}
-                  </p>
-                </div>
-              </div>
+              <p className="p-6">{t('fileManager.previewNotAvailable')}</p>
             )}
           </div>
 
-          {/* Navigation Hint */}
-          {isImageFile && totalImages > 1 && (
-            <div className="text-center text-xs text-muted-foreground">
-              {t('fileManager.navigationHint')}
-            </div>
-          )}
-
-          {/* File Info */}
-          <div className="grid grid-cols-2 gap-4 p-4 bg-muted/30 rounded-xl border border-border/30">
-            <div>
-              <h4 className="font-medium text-foreground mb-1">{t('fileManager.fileName')}</h4>
-              <p className="text-sm text-muted-foreground">{previewFile.name}</p>
-            </div>
-            <div>
-              <h4 className="font-medium text-foreground mb-1">{t('fileManager.fileSize')}</h4>
-              <p className="text-sm text-muted-foreground">{previewFile.size || t('common.unknown')}</p>
-            </div>
-            <div>
-              <h4 className="font-medium text-foreground mb-1">{t('fileManager.lastModified')}</h4>
-              <p className="text-sm text-muted-foreground">{previewFile.lastModified}</p>
-            </div>
-            <div>
-              <h4 className="font-medium text-foreground mb-1">{t('fileManager.fileType')}</h4>
-              <p className="text-sm text-muted-foreground capitalize">{previewFile.type}</p>
-            </div>
-          </div>
-
-          {/* Actions */}
-          <div className="flex items-center gap-2">
-            <Button className="flex-1 bg-primary hover:bg-primary/90 transition-colors duration-200">
+          {/* ACTIONS */}
+          <div className="flex gap-2">
+            <Button className="flex-1 bg-primary">
               <Download className="w-4 h-4 mr-2" />
               {t('actions.download')}
             </Button>
-            <Button variant="outline" onClick={handleRename} className="hover:bg-accent/50 transition-colors duration-200">
+            <Button variant="outline" onClick={handleRename}>
               <Edit className="w-4 h-4 mr-2" />
               {t('actions.rename')}
             </Button>
-            <Button variant="outline" onClick={handleDelete} className="text-destructive hover:text-destructive hover:bg-destructive/10 transition-colors duration-200">
+            <Button variant="outline" className="text-destructive" onClick={handleDelete}>
               <Trash2 className="w-4 h-4 mr-2" />
               {t('actions.delete')}
             </Button>

@@ -41,8 +41,6 @@ const passwordSchema = yup.object({
   }),
 });
 
-// THAY ĐỔI Ở ĐÂY: Định nghĩa kiểu dữ liệu một cách rõ ràng
-// Đảm bảo rằng tất cả các trường đều là 'string' vì defaultValues của bạn là chuỗi rỗng
 type PasswordFormData = {
   currentPassword: string;
   newPassword: string;
@@ -70,7 +68,7 @@ const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({ isOpen, onClo
       currentPassword: '',
       newPassword: '',
       confirmPassword: '',
-    }, // KHÔNG CẦN 'as PasswordFormData' NỮA VỚI CÁCH ĐỊNH NGHĨA KIỂU MỚI NÀY
+    },
   });
 
   const newPassword = watch('newPassword');
@@ -108,7 +106,7 @@ const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({ isOpen, onClo
   };
 
   const onSubmit = async (data: PasswordFormData) => {
-    // Bỏ qua nếu tất cả các trường đều trống
+    // Skip if all fields are empty
     if (!data.currentPassword && !data.newPassword && !data.confirmPassword) {
       onClose();
       return;
@@ -116,21 +114,21 @@ const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({ isOpen, onClo
 
     setIsSubmitting(true);
     try {
-      // Giả lập cuộc gọi API
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Simulate API call
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       toast({
-        title: "Success",
-        description: "Your password has been updated successfully.",
+        title: 'Success',
+        description: 'Your password has been updated successfully.',
       });
 
       reset();
       onClose();
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to update password. Please try again.",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Failed to update password. Please try again.',
+        variant: 'destructive',
       });
     } finally {
       setIsSubmitting(false);
@@ -151,7 +149,9 @@ const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({ isOpen, onClo
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="currentPassword" className="text-foreground">Current Password</Label>
+            <Label htmlFor="currentPassword" className="text-foreground">
+              Current Password
+            </Label>
             <Input
               id="currentPassword"
               type="password"
@@ -165,7 +165,9 @@ const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({ isOpen, onClo
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="newPassword" className="text-foreground">New Password</Label>
+            <Label htmlFor="newPassword" className="text-foreground">
+              New Password
+            </Label>
             <Input
               id="newPassword"
               type="password"
@@ -198,7 +200,9 @@ const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({ isOpen, onClo
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="confirmPassword" className="text-foreground">Confirm New Password</Label>
+            <Label htmlFor="confirmPassword" className="text-foreground">
+              Confirm New Password
+            </Label>
             <Input
               id="confirmPassword"
               type="password"

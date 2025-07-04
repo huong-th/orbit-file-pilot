@@ -1,44 +1,12 @@
 import api from '@/services/api';
-
-interface LoginResponse {
-  access_token: string;
-  refresh_token: string;
-  user: {
-    id: number;
-    email: string;
-    name: string;
-    role: string;
-    avatar: string;
-  };
-}
-
-interface UserProfile {
-  id: number;
-  email: string;
-  name: string;
-  role: string;
-  avatar: string;
-}
-
-interface RefreshTokenResponse {
-  access_token: string;
-  refresh_token: string;
-}
-
-interface RegisterResponse {
-  message: string;
-  user: {
-    id: number;
-    email: string;
-    username: string;
-  };
-}
-
-interface WebAuthnChallenge {
-  challenge: string;
-  allowCredentials?: any[];
-  excludeCredentials?: any[];
-}
+import {
+  LoginResponse,
+  RefreshTokenResponse,
+  RegisterResponse,
+  UserProfile,
+  WebAuthnAuthenticationChallenge,
+  WebAuthnChallenge,
+} from '@/types/auth.ts';
 
 export const authApi = {
   // Email + Password Login
@@ -76,13 +44,22 @@ export const authApi = {
   },
 
   // WebAuthn - Generate Challenge
-  generateWebAuthnChallenge: async (email: string, type: 'register' | 'authenticate'): Promise<WebAuthnChallenge> => {
-    const response = await api.get(`/auth/webauthn/generate-challenge?email=${encodeURIComponent(email)}&type=${type}`);
+  generateWebAuthnChallenge: async (
+    email: string,
+    type: 'register' | 'authenticate'
+  ): Promise<WebAuthnChallenge | WebAuthnAuthenticationChallenge> => {
+    const response = await api.get(
+      `/auth/webauthn/generate-challenge?email=${encodeURIComponent(email)}&type=${type}`
+    );
     return response.data;
   },
 
   // WebAuthn - Verify Credential
-  verifyWebAuthn: async (email: string, options: { type: 'register' | 'authenticate' }, credential: any): Promise<LoginResponse> => {
+  verifyWebAuthn: async (
+    email: string,
+    options: { type: 'register' | 'authenticate' },
+    credential: any
+  ): Promise<LoginResponse> => {
     const response = await api.post('/auth/webauthn/verify', {
       email,
       options,
@@ -92,7 +69,11 @@ export const authApi = {
   },
 
   // Registration
-  register: async (email: string, username: string, password: string): Promise<RegisterResponse> => {
+  register: async (
+    email: string,
+    username: string,
+    password: string
+  ): Promise<RegisterResponse> => {
     const response = await api.post('/auth/register', {
       email,
       username,
@@ -113,9 +94,11 @@ export const authApi = {
   },
 
   getProfile: async (accessToken?: string): Promise<UserProfile> => {
-    const config = accessToken ? {
-      headers: { Authorization: `Bearer ${accessToken}` }
-    } : {};
+    const config = accessToken
+      ? {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        }
+      : {};
 
     const response = await api.get('/auth/profile', config);
     return response.data;

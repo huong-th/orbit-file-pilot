@@ -1,15 +1,24 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Menu, Search, Grid, List, User, Settings } from 'lucide-react';
+import { useDispatch, useSelector } from 'react-redux';
+import type { RootState, AppDispatch } from '@/store/store.ts';
+import { setSearchQuery } from '@/store/slices/viewSlice';
+import { setViewMode } from '@/store/slices/navigationSlice.ts';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import DarkModeToggle from '@/components/DarkModeToggle';
 import LogoutButton from '@/components/auth/LogoutButton';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { useFileManager } from '@/contexts/FileManagerContext';
-import {useNavigate} from "react-router-dom";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 interface TopNavigationProps {
   onSidebarToggle: () => void;
@@ -17,15 +26,19 @@ interface TopNavigationProps {
   sidebarCollapsed: boolean;
 }
 
-const TopNavigation: React.FC<TopNavigationProps> = ({ onSidebarToggle, onSidebarCollapse, sidebarCollapsed }) => {
-  const { searchQuery, setSearchQuery, viewMode, setViewMode } = useFileManager();
+const TopNavigation: React.FC<TopNavigationProps> = ({ onSidebarToggle, onSidebarCollapse }) => {
+  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const { t } = useTranslation();
 
+  const searchQuery = useSelector((s: RootState) => s.view.searchQuery);
+  const viewMode = useSelector((s: RootState) => s.navigation.viewMode);
+
   return (
     <header className="sticky top-0 h-16 glass-subtle border-b border-border/30 flex justify-between items-center gap-4 px-6 backdrop-blur-xl z-30 flex-shrink-0 shadow-md">
-      {/* Left section - Sidebar toggle and Search */}
+      {/* Left section */}
       <div className="flex items-center gap-3 flex-1 max-w-2xl">
+        {/* Mobile sidebar toggle */}
         <Button
           variant="ghost"
           size="sm"
@@ -34,7 +47,6 @@ const TopNavigation: React.FC<TopNavigationProps> = ({ onSidebarToggle, onSideba
         >
           <Menu className="w-5 h-5" />
         </Button>
-
         {/* Desktop sidebar collapse toggle */}
         <Button
           variant="ghost"
@@ -44,31 +56,30 @@ const TopNavigation: React.FC<TopNavigationProps> = ({ onSidebarToggle, onSideba
         >
           <Menu className="w-4 h-4" />
         </Button>
-
         {/* Search */}
         <div className="flex-1 max-w-lg">
           <div className="relative">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" />
             <Input
               type="text"
               placeholder={t('navigation.search')}
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => dispatch(setSearchQuery(e.target.value))}
               className="pl-12 glass-subtle border border-border/40 focus:border-primary/60 focus:ring-2 focus:ring-primary/30 rounded-xl h-10 transition-all duration-300 shadow-sm hover:shadow-md hover-glow font-medium placeholder:text-muted-foreground/70"
             />
           </div>
         </div>
       </div>
 
-      {/* Right section - Desktop controls */}
+      {/* Right section */}
       <div className="flex items-center gap-1 md:gap-2">
-        {/* View toggle - desktop only */}
+        {/* View toggle (desktop) */}
         <div className="hidden md:flex glass-subtle rounded-xl p-1 border border-border/30 shadow-sm">
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setViewMode('grid')}
-            className={`p-2.5 rounded-lg transition-all duration-300 ${
+            onClick={() => dispatch(setViewMode('grid'))}
+            className={`p-2.5 rounded-lg ${
               viewMode === 'grid'
                 ? 'gradient-primary text-white shadow-md scale-105'
                 : 'hover:bg-background/60 text-muted-foreground hover:text-foreground hover:scale-105'
@@ -79,8 +90,8 @@ const TopNavigation: React.FC<TopNavigationProps> = ({ onSidebarToggle, onSideba
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setViewMode('list')}
-            className={`p-2.5 rounded-lg transition-all duration-300 ${
+            onClick={() => dispatch(setViewMode('list'))}
+            className={`p-2.5 rounded-lg ${
               viewMode === 'list'
                 ? 'gradient-primary text-white shadow-md scale-105'
                 : 'hover:bg-background/60 text-muted-foreground hover:text-foreground hover:scale-105'
@@ -90,22 +101,20 @@ const TopNavigation: React.FC<TopNavigationProps> = ({ onSidebarToggle, onSideba
           </Button>
         </div>
 
-        {/* Desktop-only elements */}
-        <div className="hidden md:flex items-center gap-1 md:gap-2">
-          {/* Separator */}
-          <div className="w-px h-6 bg-gradient-to-b from-transparent via-border/60 to-transparent mx-2"></div>
-
-          {/* Language Switcher */}
+        {/* Desktop-only controls */}
+        <div className="hidden md:flex items-center gap-2">
+          <div className="w-px h-6 bg-gradient-to-b from-transparent via-border/60 to-transparent mx-2" />
           <LanguageSwitcher />
-
-          {/* Theme toggle */}
           <DarkModeToggle />
         </div>
 
-        {/* User menu - always visible */}
+        {/* User menu */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="relative h-10 w-10 rounded-full p-0 ml-1 hover:bg-accent/50 transition-all duration-300 hover:scale-110 hover-glow">
+            <Button
+              variant="ghost"
+              className="relative h-10 w-10 rounded-full p-0 ml-1 hover:bg-accent/50 transition-all duration-300 hover:scale-110 hover-glow"
+            >
               <Avatar className="h-8 w-8 ring-2 ring-primary/20 ring-offset-2 ring-offset-background transition-all duration-300">
                 <AvatarImage src="/placeholder.svg" alt="User" />
                 <AvatarFallback className="gradient-primary text-white text-xs font-semibold">
@@ -114,58 +123,26 @@ const TopNavigation: React.FC<TopNavigationProps> = ({ onSidebarToggle, onSideba
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56 glass-card border border-border/40 shadow-xl rounded-2xl p-2" align="end">
+          <DropdownMenuContent
+            className="w-56 glass-card border border-border/40 shadow-xl rounded-2xl p-2"
+            align="end"
+          >
             <div className="px-3 py-3">
-              <p className="text-sm font-semibold text-foreground">{t('navigation.user.profile')}</p>
+              <p className="text-sm font-semibold text-foreground">
+                {t('navigation.user.profile')}
+              </p>
               <p className="text-xs text-muted-foreground">{t('navigation.user.email')}</p>
             </div>
             <DropdownMenuSeparator />
-
-            {/* Mobile-only controls */}
-            <div className="md:hidden">
-              {/* View Mode Toggle */}
-              <DropdownMenuItem
-                className="cursor-pointer rounded-lg hover:bg-accent/60 transition-colors duration-200 font-medium"
-                onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
-              >
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="flex items-center gap-2 !h-auto"
-                >
-                  {viewMode === 'grid' ? <List className="w-4 h-4" /> : <Grid className="w-4 h-4" />}
-                  {viewMode === 'grid' ? t('navigation.user.listView') : t('navigation.user.gridView')}
-                </Button>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-
-              {/* Theme Toggle - Mobile only */}
-              <div className="relative flex select-none items-center px-2 py-1.5 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 cursor-pointer rounded-lg hover:bg-accent/60 transition-colors duration-200 font-medium">
-                <DarkModeToggle showText={true} />
-              </div>
-              <DropdownMenuSeparator />
-
-              {/* Language Switcher */}
-              <div className="relative flex select-none items-center px-2 py-1.5 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 cursor-pointer rounded-lg hover:bg-accent/60 transition-colors duration-200 font-medium">
-                <LanguageSwitcher showText={true} />
-              </div>
-              <DropdownMenuSeparator />
-            </div>
-
-            <DropdownMenuItem className="cursor-pointer rounded-lg hover:bg-accent/60 transition-colors duration-200 font-medium">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="flex items-center gap-2 !h-auto"
-                onClick={() => navigate('/settings')}
-              >
-                <Settings className="w-4 h-4" />
-                {t('navigation.user.settings')}
-              </Button>
+            <DropdownMenuItem
+              onClick={() => navigate('/settings')}
+              className="cursor-pointer rounded-lg hover:bg-accent/60 font-medium"
+            >
+              <Settings className="w-4 h-4 mr-2" /> {t('navigation.user.settings')}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="cursor-pointer rounded-lg hover:bg-accent/60 transition-colors duration-200 font-medium">
-              <LogoutButton variant="ghost" size="sm" showIcon={true} showText={true} />
+            <DropdownMenuItem className="cursor-pointer rounded-lg hover:bg-accent/60 font-medium">
+              <LogoutButton variant="ghost" size="sm" showIcon showText />
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

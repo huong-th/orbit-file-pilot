@@ -1,10 +1,26 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link, useLocation } from 'react-router-dom';
-import { Files, Image, FileText, Video, Music, MoreHorizontal, Share, Star, Trash2, BarChart, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import {
+  Files,
+  Image,
+  FileText,
+  Video,
+  Music,
+  MoreHorizontal,
+  Share,
+  Star,
+  Trash2,
+  BarChart,
+  ChevronLeft,
+  ChevronRight,
+} from 'lucide-react';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '@/store/store.ts';
+import { navigateToFolder } from '@/store/slices/navigationSlice';
+import { setCurrentFilter } from '@/store/slices/viewSlice';
 import { Button } from '@/components/ui/button';
 import FolderTreeSidebar from '@/components/FolderTreeSidebar';
-import { useFileManager } from '@/contexts/FileManagerContext';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface SidebarProps {
@@ -15,15 +31,32 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, collapsed, onCollapsedChange }) => {
-  const { currentFolder, setCurrentFolder, currentFilter, setCurrentFilter } = useFileManager();
+  const dispatch = useDispatch();
   const location = useLocation();
   const { t } = useTranslation();
+  const navigate = useNavigate();
+
+  const currentFolder = useSelector((state: RootState) => state.navigation.currentFolderId);
+  const currentFilter = useSelector((state: RootState) => state.view.currentFilter);
 
   const mainCategories = [
-    { id: 'all', name: t('sidebar.allFiles'), icon: Files, isDefault: true, path: '/', filter: 'all' },
-    { id: 'pictures', name: t('sidebar.pictures'), icon: Image, path: '/', filter: 'pictures' },
-    { id: 'documents', name: t('sidebar.documents'), icon: FileText, path: '/', filter: 'documents' },
-    { id: 'videos', name: t('sidebar.videos'), icon: Video, path: '/', filter: 'videos' },
+    {
+      id: 'all',
+      name: t('sidebar.allFiles'),
+      icon: Files,
+      isDefault: true,
+      path: '/',
+      filter: 'all',
+    },
+    { id: 'pictures', name: t('sidebar.pictures'), icon: Image, path: '/', filter: 'picture' },
+    {
+      id: 'documents',
+      name: t('sidebar.documents'),
+      icon: FileText,
+      path: '/',
+      filter: 'document',
+    },
+    { id: 'videos', name: t('sidebar.videos'), icon: Video, path: '/', filter: 'video' },
     { id: 'music', name: t('sidebar.music'), icon: Music, path: '/', filter: 'music' },
     { id: 'other', name: t('sidebar.other'), icon: MoreHorizontal, path: '/', filter: 'other' },
   ];
@@ -36,17 +69,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, collapsed, onCollap
   ];
 
   const handleCategoryClick = (categoryId: string, filter?: string, path?: string) => {
-    if (categoryId === 'dashboard') {
-      return; // Navigation handled by Link
-    }
+    if (categoryId === 'dashboard') return;
 
-    if (filter) {
-      setCurrentFilter(filter);
-    }
-
-    // If not on root folder, navigate to root when changing filters
+    if (filter) dispatch(setCurrentFilter(filter));
     if (currentFolder !== 'root') {
-      setCurrentFolder('root');
+      dispatch(navigateToFolder({ folderId: 'root' }));
+      navigate('/');
     }
   };
 
@@ -63,77 +91,62 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, collapsed, onCollap
             : 'hover:bg-accent/50 text-sidebar-foreground'
         } cursor-pointer`}
       >
-        {/* Active indicator dot - only show when not collapsed */}
         {isActive && !collapsed && (
           <div className="absolute left-1 top-1/2 transform -translate-y-1/2 w-1.5 h-1.5 bg-primary rounded-full" />
         )}
-
-        {/* Active indicator for collapsed mode */}
-        {isActive && collapsed && (
-          <div className="absolute inset-0 bg-primary/20 rounded-lg" />
-        )}
-
+        {isActive && collapsed && <div className="absolute inset-0 bg-primary/20 rounded-lg" />}
         <item.icon
-          className={`transition-transform duration-200 ${
-            collapsed ? 'w-5 h-5' : 'w-5 h-5'
-          } ${
+          className={`transition-transform duration-200 w-5 h-5 ${
             isActive ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground'
           }`}
         />
         {!collapsed && (
-          <span className={`text-sm font-medium transition-all duration-200 ${
-            isActive ? 'font-semibold' : ''
-          }`}>{item.name}</span>
+          <span
+            className={`text-sm font-medium transition-all duration-200 ${
+              isActive ? 'font-semibold' : ''
+            }`}
+          >
+            {item.name}
+          </span>
         )}
       </div>
     );
 
-    if (collapsed) {
-      return (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Link to={item.path + (item.filter && item.filter !== 'all' ? `?type=${item.filter}` : '')} onClick={() => handleCategoryClick(item.id, item.filter, item.path)}>
-              {content}
-            </Link>
-          </TooltipTrigger>
-          <TooltipContent side="right" className="ml-2">
-            <p>{item.name}</p>
-          </TooltipContent>
-        </Tooltip>
-      );
-    }
+    const linkPath =
+      item.path + (item.filter && item.filter !== 'all' ? `?type=${item.filter}` : '');
 
-    return (
-      <Link to={item.path + (item.filter && item.filter !== 'all' ? `?type=${item.filter}` : '')} onClick={() => handleCategoryClick(item.id, item.filter, item.path)}>
+    return collapsed ? (
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Link to={linkPath} onClick={() => handleCategoryClick(item.id, item.filter, item.path)}>
+            {content}
+          </Link>
+        </TooltipTrigger>
+        <TooltipContent side="right" className="ml-2">
+          <p>{item.name}</p>
+        </TooltipContent>
+      </Tooltip>
+    ) : (
+      <Link to={linkPath} onClick={() => handleCategoryClick(item.id, item.filter, item.path)}>
         {content}
       </Link>
     );
   };
 
-  // --- START OF CHANGES ---
-
-  // Biến để lưu trữ ID của category cuối cùng được kích hoạt
   let lastActiveMainCategoryId: string | null = null;
-
-  // Duyệt ngược để tìm category cuối cùng thỏa mãn điều kiện isActive
   for (let i = mainCategories.length - 1; i >= 0; i--) {
     const category = mainCategories[i];
     const isInFolder = location.pathname.startsWith('/folder');
     const hasTypeParam = location.search.includes(`type=${category.filter}`);
     const isRootWithCorrectFilter = location.pathname === '/' && currentFilter === category.filter;
-
-    // Kiểm tra điều kiện isActive tương tự như trước
     if (!isInFolder && (isRootWithCorrectFilter || hasTypeParam)) {
       lastActiveMainCategoryId = category.id;
-      break; // Tìm thấy mục cuối cùng (khi duyệt ngược), thoát khỏi vòng lặp
+      break;
     }
   }
 
-  // --- END OF CHANGES ---
-
   return (
     <TooltipProvider>
-      {/* Sidebar */}
       <div
         className={`fixed inset-y-0 left-0 z-50 glass border-r border-sidebar-border transform transition-all duration-300 ease-out ${
           collapsed ? 'w-16' : 'w-60'
@@ -142,11 +155,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, collapsed, onCollap
         } lg:relative lg:translate-x-0 lg:flex lg:flex-shrink-0`}
       >
         <div className="flex flex-col h-full">
-          {/* Header */}
           <div className={`border-b border-sidebar-border/50 ${collapsed ? 'p-3' : 'p-4'}`}>
             {!collapsed ? (
               <>
-                <h2 className="text-lg font-bold text-sidebar-foreground tracking-tight">{t('sidebar.title')}</h2>
+                <h2 className="text-lg font-bold text-sidebar-foreground tracking-tight">
+                  {t('sidebar.title')}
+                </h2>
                 <p className="text-xs text-muted-foreground mt-1">{t('sidebar.subtitle')}</p>
               </>
             ) : (
@@ -156,8 +170,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, collapsed, onCollap
                 </div>
               </div>
             )}
-
-            {/* Collapse toggle - only show on desktop */}
             <div className="hidden lg:block mt-3">
               <Button
                 variant="ghost"
@@ -176,10 +188,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, collapsed, onCollap
             </div>
           </div>
 
-          {/* Content - Scrollable */}
           <div className="flex-1 overflow-y-auto sidebar-scrollbar lg:sidebar-no-scroll">
             <div className={`${collapsed ? 'py-4 px-1 space-y-4' : 'p-4 space-y-6'}`}>
-              {/* Main Categories */}
               <div className={collapsed ? 'space-y-1' : ''}>
                 {!collapsed && (
                   <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 px-3">
@@ -188,21 +198,11 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, collapsed, onCollap
                 )}
                 <div className={collapsed ? 'space-y-1' : 'space-y-1'}>
                   {mainCategories.map((category) => {
-                    // Cập nhật isActive để chỉ kích hoạt category cuối cùng
                     const isActive = category.id === lastActiveMainCategoryId;
-
-                    return (
-                      <CategoryItem
-                        key={category.id}
-                        item={category}
-                        isActive={isActive}
-                      />
-                    );
+                    return <CategoryItem key={category.id} item={category} isActive={isActive} />;
                   })}
                 </div>
               </div>
-
-              {/* Action Items */}
               <div className={collapsed ? 'space-y-1' : ''}>
                 {!collapsed && (
                   <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 px-3">
@@ -211,24 +211,16 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, collapsed, onCollap
                 )}
                 <div className={collapsed ? 'space-y-1' : 'space-y-1'}>
                   {actionItems.map((item) => {
-                    // Logic cho actionItems có thể khác và không cần giới hạn 1 active item
-                    // Nếu bạn cũng muốn giới hạn 1 active item cho actionItems, áp dụng logic tương tự.
-                    const isActive = item.id === 'dashboard'
-                      ? location.pathname === '/dashboard'
-                      : !location.pathname.startsWith('/folder') && location.pathname === '/' && currentFilter === item.filter;
-
-                    return (
-                      <CategoryItem
-                        key={item.id}
-                        item={item}
-                        isActive={isActive}
-                      />
-                    );
+                    const isActive =
+                      item.id === 'dashboard'
+                        ? location.pathname === '/dashboard'
+                        : !location.pathname.startsWith('/folder') &&
+                          location.pathname === '/' &&
+                          currentFilter === item.filter;
+                    return <CategoryItem key={item.id} item={item} isActive={isActive} />;
                   })}
                 </div>
               </div>
-
-              {/* Folder Tree */}
               {!collapsed && (
                 <div>
                   <FolderTreeSidebar />
@@ -238,8 +230,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, collapsed, onCollap
           </div>
         </div>
       </div>
-
-      {/* Overlay for mobile */}
       {isOpen && (
         <div
           className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm lg:hidden transition-opacity duration-300"

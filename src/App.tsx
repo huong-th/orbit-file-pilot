@@ -17,6 +17,7 @@ import { Toaster as Sonner } from '@/components/ui/sonner';
 import SessionManager from '@/components/auth/SessionManager';
 import { setReduxDispatch } from '@/services/api';
 import AccountSettings from '@/pages/AccountSettings.tsx';
+import UploadProgressPopup from '@/components/UploadProgressPopup';
 
 const queryClient = new QueryClient();
 
@@ -59,7 +60,8 @@ const App = () => (
         </ThemeProvider>
       </GoogleOAuthProvider>
     </QueryClientProvider>
-  </Provider>
+    <UploadProgressPopup />
+  </div>
 );
 
 export default App;

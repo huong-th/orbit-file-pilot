@@ -1,3 +1,4 @@
+
 import { configureStore } from '@reduxjs/toolkit';
 
 // Auth & security
@@ -12,6 +13,7 @@ import navigationReducer, {
 } from '@/store/slices/navigationSlice';
 import viewReducer, { initialState as viewInitialState } from '@/store/slices/viewSlice';
 import uiReducer from '@/store/slices/uiSlice.ts';
+import uploadReducer from '@/store/slices/uploadSlice';
 
 const searchParams = new URLSearchParams(window.location.search);
 const urlFilter = searchParams.get('filter');
@@ -29,6 +31,7 @@ export const store = configureStore({
     navigation: navigationReducer,
     view: viewReducer,
     ui: uiReducer,
+    upload: uploadReducer,
   },
   preloadedState: {
     navigation: {

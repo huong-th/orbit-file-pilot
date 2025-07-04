@@ -1,8 +1,10 @@
+
 import React, { useState } from 'react';
 import { Upload, FileText, X } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '@/store/store';
+import { RootState, AppDispatch } from '@/store/store';
 import { closeModal } from '@/store/slices/uiSlice';
+import { addFilesToUpload, uploadFiles } from '@/store/slices/uploadSlice';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -13,14 +15,12 @@ import {
 } from '@/components/ui/dialog';
 
 const UploadModal: React.FC = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const isOpen = useSelector((state: RootState) => state.ui.modals.upload);
 
-  /* ---- local state now stores DOM File objects ---- */
   const [dragActive, setDragActive] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
 
-  /* ---- drag-and-drop helpers ---- */
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -53,9 +53,16 @@ const UploadModal: React.FC = () => {
     setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const handleUpload = () => {
-    // TODO: build FormData & call API
-    console.log('Uploading files:', selectedFiles);
+  const handleUpload = async () => {
+    if (selectedFiles.length === 0) return;
+
+    // Add files to Redux upload queue
+    dispatch(addFilesToUpload(selectedFiles));
+    
+    // Start the upload process
+    dispatch(uploadFiles(selectedFiles));
+
+    // Clear local state and close modal
     setSelectedFiles([]);
     dispatch(closeModal('upload'));
   };
@@ -65,7 +72,6 @@ const UploadModal: React.FC = () => {
     dispatch(closeModal('upload'));
   };
 
-  /* ---- pretty file-size helper ---- */
   const formatFileSize = (bytes: number) => {
     if (bytes === 0) return '0 B';
     const k = 1024;
@@ -74,9 +80,6 @@ const UploadModal: React.FC = () => {
     return `${(bytes / Math.pow(k, i)).toFixed(2)} ${sizes[i]}`;
   };
 
-  /* -------------------------------------------------------------------- */
-  /*                               render                                 */
-  /* -------------------------------------------------------------------- */
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-lg">

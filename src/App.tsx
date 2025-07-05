@@ -1,3 +1,4 @@
+
 import { Provider } from 'react-redux';
 import { ThemeProvider } from 'next-themes';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
@@ -61,7 +62,7 @@ const App = () => (
       </GoogleOAuthProvider>
     </QueryClientProvider>
     <UploadProgressPopup />
-  </div>
+  </Provider>
 );
 
 export default App;

@@ -14,6 +14,7 @@ import navigationReducer, {
 import viewReducer, { initialState as viewInitialState } from '@/store/slices/viewSlice';
 import uiReducer from '@/store/slices/uiSlice.ts';
 import uploadReducer from '@/store/slices/uploadSlice';
+import { fetchAncestors } from '@/store/slices/fileSystemThunks';
 
 const searchParams = new URLSearchParams(window.location.search);
 const urlFilter = searchParams.get('filter');
@@ -44,6 +45,11 @@ export const store = configureStore({
     },
   },
 });
+
+// Auto-fetch breadcrumbs if we start with a specific folder ID
+if (urlFolderId && urlFolderId !== 'root' && window.location.pathname.startsWith('/folder/')) {
+  store.dispatch(fetchAncestors(urlFolderId));
+}
 
 // 🛠️  Typed hooks helpers (optional but common)
 export type RootState = ReturnType<typeof store.getState>;

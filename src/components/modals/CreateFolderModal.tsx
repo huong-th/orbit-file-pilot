@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { FolderPlus } from 'lucide-react';
@@ -13,12 +14,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import type { RootState, AppDispatch } from '@/store/store.ts';
 import { closeModal } from '@/store/slices/uiSlice';
-// TODO: import createFolder thunk when backend is ready
 import { createFolder } from '@/store/slices/fileSystemThunks';
 
 const CreateFolderModal: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const isOpen = useSelector((s: RootState) => s.ui.modals.createFolder);
+  const currentFolderId = useSelector((s: RootState) => s.navigation.currentFolderId);
   const [folderName, setFolderName] = useState('');
 
   const resetAndClose = () => {
@@ -30,8 +31,10 @@ const CreateFolderModal: React.FC = () => {
     e.preventDefault();
     if (!folderName.trim()) return;
 
-    // TODO: dispatch(createFolder({ name: folderName, parentId: currentFolderId }))
-    dispatch(createFolder({ name: folderName, parentId: 'currentFolderId' }));
+    dispatch(createFolder({ 
+      name: folderName, 
+      parentId: currentFolderId === 'root' ? null : currentFolderId 
+    }));
     resetAndClose();
   };
 

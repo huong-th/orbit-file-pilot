@@ -1,6 +1,8 @@
 
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import api from '@/services/api';
+import { upsertFiles } from '@/store/slices/fileSystemSlice';
+import { buildPaginationKey } from '@/lib/utils';
 
 export interface UploadFile {
   id: string;
@@ -27,12 +29,20 @@ const initialState: UploadState = {
 // Async thunk for uploading files
 export const uploadFiles = createAsyncThunk(
   'upload/uploadFiles',
-  async (files: File[], { dispatch, rejectWithValue }) => {
+  async (
+    { files, currentFolderId }: { files: File[]; currentFolderId: string },
+    { dispatch, rejectWithValue, getState }
+  ) => {
     try {
       const formData = new FormData();
       files.forEach(file => {
         formData.append('files', file);
       });
+
+      // Add current folder ID if not root
+      if (currentFolderId && currentFolderId !== 'root') {
+        formData.append('parent_id', currentFolderId);
+      }
 
       const response = await api.post('/files/upload', formData, {
         headers: {
@@ -41,11 +51,14 @@ export const uploadFiles = createAsyncThunk(
         onUploadProgress: (progressEvent) => {
           if (progressEvent.total) {
             const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-            // Update progress for all files (simplified - in real implementation you'd track individual files)
             dispatch(updateUploadProgress({ progress }));
           }
         },
       });
+
+      // Update file system state with uploaded files
+      const parentKey = buildPaginationKey(currentFolderId, 'all');
+      dispatch(upsertFiles({ parentKey, files: response.data.files || response.data }));
 
       return response.data;
     } catch (error: any) {

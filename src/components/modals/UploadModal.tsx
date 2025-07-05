@@ -17,6 +17,7 @@ import {
 const UploadModal: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const isOpen = useSelector((state: RootState) => state.ui.modals.upload);
+  const currentFolderId = useSelector((state: RootState) => state.navigation.currentFolderId);
 
   const [dragActive, setDragActive] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -59,8 +60,8 @@ const UploadModal: React.FC = () => {
     // Add files to Redux upload queue
     dispatch(addFilesToUpload(selectedFiles));
     
-    // Start the upload process
-    dispatch(uploadFiles(selectedFiles));
+    // Start the upload process with current folder context
+    dispatch(uploadFiles({ files: selectedFiles, currentFolderId }));
 
     // Clear local state and close modal
     setSelectedFiles([]);

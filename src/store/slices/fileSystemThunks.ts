@@ -26,9 +26,8 @@ export const fetchFlatFiles = createAsyncThunk<
   },
   { state: RootState }
 >('files/fetchFlatFiles', async (params, { dispatch, getState }) => {
-  // const filter = categoryKey(params.category ?? 'all');          // images | videos | …
-  const filter = params.category ?? 'all'; // images | videos | …
-  const key = buildPaginationKey('root', filter); // flat-images, ...
+  const filter = params.category ?? 'all';
+  const key = buildPaginationKey('root', filter);
 
   const page = getState().pagination.pages[key] ?? defaultPage();
   if (page.isLoading || !page.hasMore) return;
@@ -58,7 +57,7 @@ export const fetchFlatFiles = createAsyncThunk<
 export const fetchFolderContents = createAsyncThunk<void, string, { state: RootState }>(
   'files/fetchFolderContents',
   async (folderId, { dispatch, getState }) => {
-    const key = buildPaginationKey(folderId, 'all'); // folder-<id>
+    const key = buildPaginationKey(folderId, 'all');
     const page = getState().pagination.pages[key] ?? defaultPage();
     if (page.isLoading || !page.hasMore) return;
 
@@ -89,55 +88,46 @@ export const createFolder = createAsyncThunk<
   { id: string; name: string; parent_id: string | null },
   { name: string; parentId?: string | null },
   { state: RootState }
->('folders/create', async (payload, { dispatch }) => {
+>('folders/create', async (payload, { dispatch, getState }) => {
   const { data } = await api.post('/folders', {
     name: payload.name,
     parent_id: payload.parentId ?? null,
   });
 
-  const key = buildPaginationKey(payload.parentId ?? 'root', 'all');
-  dispatch(upsertFolders({ parentKey: key, folders: [data] }));
+  // Add the new folder to the current view
+  const currentFolderId = getState().navigation.currentFolderId;
+  const key = buildPaginationKey(currentFolderId, 'all');
+  
+  // Ensure the folder has the 'kind' property for consistency
+  const folderWithKind = { ...data, kind: 'folder' as const };
+  
+  dispatch(upsertFolders({ parentKey: key, folders: [folderWithKind] }));
   return data;
 });
 
-/**
- * Lấy chi tiết 1 thư mục (GET /folders/:id)
- * - Nếu đã có trong cache -> trả về luôn (không gọi mạng)
- * - Nếu chưa có -> gọi API, lưu vào store rồi trả data
- */
 export const fetchMetadataFolder = createAsyncThunk<
-  RemoteFolder, // payload trả về
-  string, // tham số đầu vào: folderId
+  RemoteFolder,
+  string,
   { state: RootState }
 >('folders/fetchFolder', async (folderId, { getState, dispatch, rejectWithValue }) => {
-  /* 1️⃣ ĐÃ CÓ TRONG CACHE */
   const cached = getState().fileSystem.folderById[folderId];
   if (cached) return cached;
 
-  /* 2️⃣ GỌI API */
   try {
     const { data } = await api.get<RemoteFolder>(`/folders/${folderId}`);
-
-    // Lưu vào store (tuỳ slice của bạn: upsert 1 item là đủ)
     dispatch(upsertFolder(data));
-
-    return data; // trả về để extraReducers có thể dùng
+    return data;
   } catch (err: any) {
-    // Bắt lỗi “đẹp” để rejected action có payload
     return rejectWithValue(err.response?.data ?? err.message);
   }
 });
 
-/* ------------------------------------------------------------------ */
-/*  Thunk lấy đường dẫn tổ tiên + bảo đảm có metadata                  */
-/* ------------------------------------------------------------------ */
 export const fetchAncestors = createAsyncThunk<
-  BreadcrumbItem[], // 👈 payload của action fulfilled
-  string, //   tham số khi dispatch: folderId
+  BreadcrumbItem[],
+  string,
   { state: RootState }
 >('folders/fetchAncestors', async (folderId, { dispatch, getState, rejectWithValue }) => {
   try {
-    /* 1️⃣ Lấy hoặc cache mảng id */
     let pathIds = getState().navigation.breadcrumbIds[folderId];
 
     if (!pathIds) {
@@ -146,11 +136,9 @@ export const fetchAncestors = createAsyncThunk<
       dispatch(upsertBreadcrumbs({ folderId, path: pathIds }));
     }
 
-    /* 2️⃣ Bổ sung metadata còn thiếu (song song) */
     const missingIds = pathIds.filter((id) => !getState().fileSystem.folderById[id]);
     await Promise.all(missingIds.map((id) => dispatch(fetchMetadataFolder(id)).unwrap()));
 
-    /* 3️⃣ Trả về mảng object {id,name} */
     return pathIds.map((id) => {
       const folder = getState().fileSystem.folderById[id];
       return { id, name: folder?.name ?? 'Unknown' };
@@ -163,12 +151,7 @@ export const fetchAncestors = createAsyncThunk<
 export const changeFolder = createAsyncThunk<void, string, { state: RootState }>(
   'navigation/changeFolder',
   async (folderId, { dispatch }) => {
-    // 1. cập-nhật state hiện tại
     dispatch(navigateToFolder({ folderId }));
-
-    // 2. đặt ngay breadcrumb (cache + metadata)
     dispatch(fetchAncestors(folderId));
-    // 3. tuỳ UI: bạn cũng có thể prefetch contents
-    // dispatch(fetchFolderContents(folderId));
   }
 );

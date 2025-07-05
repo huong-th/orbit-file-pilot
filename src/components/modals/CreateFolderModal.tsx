@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { FolderPlus } from 'lucide-react';
+import { FolderPlus, Loader2 } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -21,21 +21,31 @@ const CreateFolderModal: React.FC = () => {
   const isOpen = useSelector((s: RootState) => s.ui.modals.createFolder);
   const currentFolderId = useSelector((s: RootState) => s.navigation.currentFolderId);
   const [folderName, setFolderName] = useState('');
+  const [isCreating, setIsCreating] = useState(false);
 
   const resetAndClose = () => {
     setFolderName('');
+    setIsCreating(false);
     dispatch(closeModal('createFolder'));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!folderName.trim()) return;
+    if (!folderName.trim() || isCreating) return;
 
-    dispatch(createFolder({ 
-      name: folderName, 
-      parentId: currentFolderId === 'root' ? null : currentFolderId 
-    }));
-    resetAndClose();
+    setIsCreating(true);
+    
+    try {
+      await dispatch(createFolder({ 
+        name: folderName, 
+        parentId: currentFolderId === 'root' ? null : currentFolderId 
+      })).unwrap();
+      
+      resetAndClose();
+    } catch (error) {
+      console.error('Failed to create folder:', error);
+      setIsCreating(false);
+    }
   };
 
   return (
@@ -59,19 +69,32 @@ const CreateFolderModal: React.FC = () => {
               onChange={(e) => setFolderName(e.target.value)}
               className="w-full"
               autoFocus
+              disabled={isCreating}
             />
           </div>
 
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={resetAndClose}>
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={resetAndClose}
+              disabled={isCreating}
+            >
               Cancel
             </Button>
             <Button
               type="submit"
-              disabled={!folderName.trim()}
+              disabled={!folderName.trim() || isCreating}
               className="bg-blue-600 hover:bg-blue-700"
             >
-              Create Folder
+              {isCreating ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Creating...
+                </>
+              ) : (
+                'Create Folder'
+              )}
             </Button>
           </DialogFooter>
         </form>

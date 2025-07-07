@@ -1,6 +1,7 @@
-import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { AlertTriangle } from 'lucide-react';
+import React from 'react';
+
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -8,15 +9,16 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import type { RootState, AppDispatch } from '@/store/store.ts';
+import { useAppDispatch, useAppSelector } from '@/hooks/redux.ts';
 import { closeModal, setDeleteItems } from '@/store/slices/uiSlice';
+
+import type { RootState } from '@/store/store.ts';
 // TODO: import deleteFiles thunk when endpoint ready
 
 const DeleteConfirmModal: React.FC = () => {
-  const dispatch = useDispatch<AppDispatch>();
-  const isOpen = useSelector((s: RootState) => s.ui.modals.delete);
-  const deleteItems = useSelector((s: RootState) => s.ui.deleteItems);
+  const dispatch = useAppDispatch();
+  const isOpen = useAppSelector((s: RootState) => s.ui.modals.delete);
+  const deleteItems = useAppSelector((s: RootState) => s.ui.deleteItems);
 
   const resetAndClose = () => {
     dispatch(closeModal('delete'));

@@ -1,10 +1,10 @@
+import { X, Download, Edit, Trash2 } from 'lucide-react';
 import React, { useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useAppDispatch, useAppSelector } from '@/hooks/redux';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { X, Download, Edit, Trash2 } from 'lucide-react';
 
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import { closeModal, openModal } from '@/store/slices/uiSlice'; // manages `modals.preview`
 import { setRenameItem, setDeleteItems } from '@/store/slices/uiSlice'; // holds preview helpers
 

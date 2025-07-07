@@ -1,6 +1,7 @@
 import { createSelector } from '@reduxjs/toolkit';
-import { RootState } from '@/store/store';
+
 import { ROOT_ID, ROOT_ITEM } from '@/constants';
+import { RootState } from '@/store/store';
 
 export const selectBreadcrumb = (folderId: string) =>
   createSelector(

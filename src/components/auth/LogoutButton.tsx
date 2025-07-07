@@ -1,11 +1,12 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import { LogOut } from 'lucide-react';
+import React from 'react';
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
+
 import { Button } from '@/components/ui/button';
 import { useAppDispatch } from '@/hooks/redux';
-import { logout } from '@/store/slices/authSlice.ts';
 import { useToast } from '@/hooks/use-toast';
-import { useTranslation } from 'react-i18next';
+import { logout } from '@/store/slices/authSlice.ts';
 
 interface LogoutButtonProps {
   variant?: 'default' | 'ghost' | 'outline';

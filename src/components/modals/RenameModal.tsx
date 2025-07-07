@@ -1,9 +1,6 @@
-// src/components/modals/RenameModal.tsx
-import React, { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { Edit } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import React, { useState, useEffect } from 'react';
+
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -12,14 +9,18 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
-import type { RootState, AppDispatch } from '@/store/store.ts';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { useAppDispatch, useAppSelector } from '@/hooks/redux.ts';
 import { closeModal, setRenameItem } from '@/store/slices/uiSlice';
+
+import type { RootState } from '@/store/store.ts';
 // TODO: import renameFileOrFolder thunk once backend endpoint exists
 
 const RenameModal: React.FC = () => {
-  const dispatch = useDispatch<AppDispatch>();
-  const isOpen = useSelector((s: RootState) => s.ui.modals.rename);
-  const item = useSelector((s: RootState) => s.ui.renameItem);
+  const dispatch = useAppDispatch();
+  const isOpen = useAppSelector((s: RootState) => s.ui.modals.rename);
+  const item = useAppSelector((s: RootState) => s.ui.renameItem);
   const [newName, setNewName] = useState('');
 
   // Populate input when item changes

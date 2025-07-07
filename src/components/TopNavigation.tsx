@@ -1,17 +1,13 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 import { Menu, Search, Grid, List, User, Settings } from 'lucide-react';
-import { useDispatch, useSelector } from 'react-redux';
-import type { RootState, AppDispatch } from '@/store/store.ts';
-import { setSearchQuery } from '@/store/slices/viewSlice';
-import { setViewMode } from '@/store/slices/navigationSlice.ts';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import DarkModeToggle from '@/components/DarkModeToggle';
+import React from 'react';
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
+
 import LogoutButton from '@/components/auth/LogoutButton';
+import DarkModeToggle from '@/components/DarkModeToggle';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,6 +15,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
+import { useAppDispatch, useAppSelector } from '@/hooks/redux.ts';
+import { setViewMode } from '@/store/slices/navigationSlice.ts';
+import { setSearchQuery } from '@/store/slices/viewSlice';
+
+import type { RootState } from '@/store/store.ts';
 
 interface TopNavigationProps {
   onSidebarToggle: () => void;
@@ -27,12 +29,12 @@ interface TopNavigationProps {
 }
 
 const TopNavigation: React.FC<TopNavigationProps> = ({ onSidebarToggle, onSidebarCollapse }) => {
-  const dispatch = useDispatch<AppDispatch>();
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { t } = useTranslation();
 
-  const searchQuery = useSelector((s: RootState) => s.view.searchQuery);
-  const viewMode = useSelector((s: RootState) => s.navigation.viewMode);
+  const searchQuery = useAppSelector((s: RootState) => s.view.searchQuery);
+  const viewMode = useAppSelector((s: RootState) => s.navigation.viewMode);
 
   return (
     <header className="sticky top-0 h-16 glass-subtle border-b border-border/30 flex justify-between items-center gap-4 px-6 backdrop-blur-xl z-30 flex-shrink-0 shadow-md">

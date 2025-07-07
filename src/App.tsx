@@ -1,22 +1,24 @@
-import { Provider } from 'react-redux';
-import { ThemeProvider } from 'next-themes';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { GoogleOAuthProvider } from '@react-oauth/google';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ThemeProvider } from 'next-themes';
+import { Provider } from 'react-redux';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+
+import SessionManager from '@/components/auth/SessionManager';
+import Layout from '@/components/Layout';
+import ProtectedRoute from '@/components/ProtectedRoute';
+import { Toaster as Sonner } from '@/components/ui/sonner';
+import { Toaster } from '@/components/ui/toaster';
+import { TooltipProvider } from '@/components/ui/tooltip';
+import UploadProgressPopup from '@/components/UploadProgressPopup.tsx';
+import AccountSettings from '@/pages/AccountSettings.tsx';
+import Dashboard from '@/pages/Dashboard';
 import Index from '@/pages/Index';
 import Login from '@/pages/Login';
-import Register from '@/pages/Register.tsx';
 import NotFound from '@/pages/NotFound';
-import Dashboard from '@/pages/Dashboard';
-import { store } from '@/store/store';
-import Layout from '@/components/Layout';
-import { Toaster } from '@/components/ui/toaster';
-import ProtectedRoute from '@/components/ProtectedRoute';
-import { TooltipProvider } from '@/components/ui/tooltip';
-import { Toaster as Sonner } from '@/components/ui/sonner';
-import SessionManager from '@/components/auth/SessionManager';
+import Register from '@/pages/Register.tsx';
 import { setReduxDispatch } from '@/services/api';
-import AccountSettings from '@/pages/AccountSettings.tsx';
+import { store } from '@/store/store';
 
 const queryClient = new QueryClient();
 
@@ -59,6 +61,8 @@ const App = () => (
         </ThemeProvider>
       </GoogleOAuthProvider>
     </QueryClientProvider>
+
+    <UploadProgressPopup />
   </Provider>
 );
 

@@ -1,5 +1,5 @@
-import React from 'react';
 import { GoogleLogin } from '@react-oauth/google';
+import React from 'react';
 
 interface GoogleLoginTabProps {
   onGoogleLogin: (token: string) => Promise<void>;

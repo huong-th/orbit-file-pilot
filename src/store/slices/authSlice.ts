@@ -1,8 +1,11 @@
-import Cookies from 'js-cookie';
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { authApi } from '@/services/authApi.ts';
-// import { addPasskey } from '@/store/slices/passkeySlice';
 import { startRegistration, startAuthentication } from '@simplewebauthn/browser';
+import Cookies from 'js-cookie';
+
+import { authApi } from '@/services/authApi.ts';
+
+// import { addPasskey } from '@/store/slices/passkeySlice';
+
 import { WebAuthnAuthenticationChallenge, WebAuthnChallenge } from '@/types/auth.ts';
 
 interface User {

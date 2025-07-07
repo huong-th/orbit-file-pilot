@@ -1,5 +1,5 @@
-// src/store/slices/fileSystemSlice.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+
 import type { RemoteFile, RemoteFolder } from '@/types/files';
 
 /**
@@ -37,13 +37,19 @@ const fsSlice = createSlice({
     /* --------------------------------------------------------- */
     /* Bulk upsert (list API)                                    */
     /* --------------------------------------------------------- */
-    upsertFiles(state, { payload }: PayloadAction<{ parentKey: string; files: RemoteFile[] }>) {
-      const { parentKey, files } = payload;
-      files.forEach((f) => {
-        state.fileById[f.id] = f;
-      });
-      const ids = files.map((f) => f.id);
-      state.filesByFolder[parentKey] = mergeUnique(state.filesByFolder[parentKey], ids);
+    upsertFiles(state, { payload }: PayloadAction<{ parentKey: string; file?: RemoteFile, files?: RemoteFile[] }>) {
+      const { parentKey, file, files } = payload;
+      if (file) {
+        // If a single file is provided, convert it to an array
+        state.fileById[file.id] = file;
+        state.filesByFolder[parentKey] = mergeUnique(state.filesByFolder[parentKey], [file.id]);
+      } else if (files) {
+        files.forEach((f) => {
+          state.fileById[f.id] = f;
+        });
+        const ids = files.map((f) => f.id);
+        state.filesByFolder[parentKey] = mergeUnique(state.filesByFolder[parentKey], ids);
+      }
     },
 
     upsertFolders(

@@ -1,16 +1,18 @@
+import { yupResolver } from '@hookform/resolvers/yup';
+import { Eye, EyeOff, Mail, Lock, User, UserPlus } from 'lucide-react';
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
-import * as yup from 'yup';
-import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Eye, EyeOff, Mail, Lock, User, UserPlus } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import * as yup from 'yup';
+
+import { useToast } from '@/hooks/use-toast';
+import { authApi } from '@/services/authApi';
+
+import { Alert, AlertDescription } from '../ui/alert';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
-import { Alert, AlertDescription } from '../ui/alert';
-import { useToast } from '@/hooks/use-toast';
-import { authApi } from '@/services/authApi';
 
 const createRegisterSchema = (t: any) =>
   yup.object().shape({

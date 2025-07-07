@@ -1,7 +1,8 @@
+import Cookies from 'js-cookie';
 import React, { useEffect } from 'react';
+
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import { getUserProfile, setUser, updateTokens } from '@/store/slices/authSlice.ts';
-import Cookies from 'js-cookie';
 
 interface SessionManagerProps {
   children: React.ReactNode;

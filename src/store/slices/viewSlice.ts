@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+
 import { getQueryParam } from '@/lib/utils';
 
 export interface ViewState {

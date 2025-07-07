@@ -1,14 +1,14 @@
+import { Download, Edit, Trash2, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import React, { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useAppDispatch, useAppSelector } from '@/hooks/redux';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Download, Edit, Trash2, X, ChevronLeft, ChevronRight } from 'lucide-react';
 
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { useAppDispatch, useAppSelector } from '@/hooks/redux';
+import { buildPaginationKey } from '@/lib/utils';
 import { closeModal, openModal } from '@/store/slices/uiSlice'; // ▶︎ contains modals.preview state
 import { setPreviewFile, setRenameItem, setDeleteItems } from '@/store/slices/uiSlice'; // ▶︎ holds previewFile & helpers
 
-import { buildPaginationKey } from '@/lib/utils';
 import VideoPlayerModal from './VideoPlayerModal';
 
 /* ────────────────────────── helper preview comps ─────────────────────────── */

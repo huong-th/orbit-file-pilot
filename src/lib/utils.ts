@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+
 import { FileCategory } from '@/types/files.ts';
 
 export function cn(...inputs: ClassValue[]) {

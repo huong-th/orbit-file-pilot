@@ -1,4 +1,5 @@
 import React from 'react';
+
 import AccountSettingsForm from '@/components/settings/AccountSettingsForm';
 
 const AccountSettings: React.FC = () => {

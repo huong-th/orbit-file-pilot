@@ -1,17 +1,18 @@
-// src/components/MainContent.tsx
-import React, { useEffect, useMemo } from 'react';
 import { Loader } from 'lucide-react';
+import React, { useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useAppDispatch, useAppSelector } from '@/hooks/redux';
+
+import BreadcrumbNavigation from '@/components/BreadcrumbNavigation';
 import FileGrid from '@/components/FileGrid';
 import FileList from '@/components/FileList';
-import MusicPlaylist from '@/components/MusicPlaylist';
 import LoadingSkeleton from '@/components/LoadingSkeleton';
-import BreadcrumbNavigation from '@/components/BreadcrumbNavigation';
-import { fetchFolderContents, fetchFlatFiles } from '@/store/slices/fileSystemThunks';
-import { buildPaginationKey } from '@/lib/utils';
-import { defaultPage } from '@/store/slices/paginationSlice';
+import MusicPlaylist from '@/components/MusicPlaylist';
+import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
+import { buildPaginationKey } from '@/lib/utils';
+import { fetchFolderContents, fetchFlatFiles } from '@/store/slices/fileSystemThunks';
+import { defaultPage } from '@/store/slices/paginationSlice';
+
 import type { RootState } from '@/store/store.ts';
 
 interface MainContentProps {

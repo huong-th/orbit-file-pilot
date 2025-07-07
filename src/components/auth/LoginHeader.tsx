@@ -1,6 +1,6 @@
+import { LogIn } from 'lucide-react';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { LogIn } from 'lucide-react';
 
 const LoginHeader: React.FC = () => {
   const { t } = useTranslation();

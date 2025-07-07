@@ -1,16 +1,18 @@
+import { yupResolver } from '@hookform/resolvers/yup';
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import { Card, CardContent } from '@/components/ui/card';
+
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+
 import AvatarUpload from './AvatarUpload';
+import DangerZone from './DangerZone';
 import PasswordSection from './PasswordSection';
 import SecuritySection from './SecuritySection';
-import DangerZone from './DangerZone';
 
 interface FormData {
   username: string;

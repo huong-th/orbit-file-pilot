@@ -1,6 +1,7 @@
 import React from 'react';
-import { DriveItem } from '@/types/files';
+
 import FileCard from '@/components/FileCard';
+import { DriveItem } from '@/types/files';
 
 interface FileGridProps {
   files: DriveItem[];

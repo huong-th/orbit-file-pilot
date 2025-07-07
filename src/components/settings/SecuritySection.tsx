@@ -1,9 +1,10 @@
-import React from 'react';
 import { Trash2, Shield } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import React from 'react';
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux'; // Import hooks Redux
+import { useToast } from '@/hooks/use-toast';
 import { registerNewPasskey } from '@/store/slices/authSlice'; // Import thunk mới
 import { removePasskey } from '@/store/slices/passkeySlice'; // Import action và kiểu từ passkeySlice
 

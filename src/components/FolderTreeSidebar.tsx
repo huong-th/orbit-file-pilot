@@ -1,9 +1,10 @@
-// src/components/FolderTreeSidebar.tsx
-import React, { useMemo, useState } from 'react';
 import { ChevronRight, ChevronDown, Folder as FolderIcon } from 'lucide-react';
+import React, { useMemo, useState } from 'react';
+
 import { Button } from '@/components/ui/button';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
-import { navigateToFolder } from '@/store/slices/navigationSlice';
+import { changeFolder } from '@/store/slices/fileSystemThunks.ts';
+
 import type { RootState } from '@/store/store.ts';
 import type { RemoteFolder } from '@/types/files';
 
@@ -55,7 +56,7 @@ const FolderTreeSidebar: React.FC = () => {
   };
 
   const handleNavigate = (id: string) => {
-    dispatch(navigateToFolder({ folderId: id }));
+    dispatch(changeFolder(id));
   };
 
   /* ------------------------------------------------------------- */

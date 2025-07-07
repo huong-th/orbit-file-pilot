@@ -1,4 +1,5 @@
 import React from 'react';
+
 import RegisterScreen from '@/components/auth/RegisterScreen';
 
 const Register: React.FC = () => {

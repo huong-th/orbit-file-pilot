@@ -1,13 +1,14 @@
+import { yupResolver } from '@hookform/resolvers/yup';
+import { Mail, Smartphone } from 'lucide-react';
 import React from 'react';
 import { useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
-import * as yup from 'yup';
 import { useTranslation } from 'react-i18next';
-import { Mail, Smartphone } from 'lucide-react';
+import * as yup from 'yup';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
+import { Label } from '@/components/ui/label';
 
 const createOtpEmailSchema = (t: any) =>
   yup.object().shape({

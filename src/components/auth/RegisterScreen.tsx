@@ -1,4 +1,5 @@
 import React from 'react';
+
 import RegisterForm from '@/components/auth/RegisterForm';
 import DarkModeToggle from '@/components/DarkModeToggle';
 import LanguageSwitcher from '@/components/LanguageSwitcher';

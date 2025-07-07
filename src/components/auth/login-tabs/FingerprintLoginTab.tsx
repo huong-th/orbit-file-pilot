@@ -1,6 +1,7 @@
+import { Fingerprint } from 'lucide-react';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Fingerprint } from 'lucide-react';
+
 import { Button } from '@/components/ui/button';
 
 interface FingerprintLoginTabProps {

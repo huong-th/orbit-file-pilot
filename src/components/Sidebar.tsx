@@ -1,6 +1,3 @@
-import React from 'react';
-import { useTranslation } from 'react-i18next';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   Files,
   Image,
@@ -15,13 +12,17 @@ import {
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '@/store/store.ts';
-import { navigateToFolder } from '@/store/slices/navigationSlice';
-import { setCurrentFilter } from '@/store/slices/viewSlice';
-import { Button } from '@/components/ui/button';
+import React from 'react';
+import { useTranslation } from 'react-i18next';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+
 import FolderTreeSidebar from '@/components/FolderTreeSidebar';
+import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { useAppDispatch, useAppSelector } from '@/hooks/redux.ts';
+import { changeFolder } from '@/store/slices/fileSystemThunks.ts';
+import { setCurrentFilter } from '@/store/slices/viewSlice';
+import { RootState } from '@/store/store.ts';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -31,13 +32,13 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, collapsed, onCollapsedChange }) => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const location = useLocation();
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  const currentFolder = useSelector((state: RootState) => state.navigation.currentFolderId);
-  const currentFilter = useSelector((state: RootState) => state.view.currentFilter);
+  const currentFolder = useAppSelector((state: RootState) => state.navigation.currentFolderId);
+  const currentFilter = useAppSelector((state: RootState) => state.view.currentFilter);
 
   const mainCategories = [
     {
@@ -73,7 +74,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, collapsed, onCollap
 
     if (filter) dispatch(setCurrentFilter(filter));
     if (currentFolder !== 'root') {
-      dispatch(navigateToFolder({ folderId: 'root' }));
+      dispatch(changeFolder('root'));
       navigate('/');
     }
   };

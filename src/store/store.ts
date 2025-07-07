@@ -2,20 +2,22 @@ import { configureStore } from '@reduxjs/toolkit';
 
 // Auth & security
 import authReducer from '@/store/slices/authSlice';
-import passkeyReducer from '@/store/slices/passkeySlice';
 
 // File‑manager domain
 import fileSystemReducer from '@/store/slices/fileSystemSlice';
-import paginationReducer from '@/store/slices/paginationSlice';
 import navigationReducer, {
   initialState as navigationInitialState,
 } from '@/store/slices/navigationSlice';
-import viewReducer, { initialState as viewInitialState } from '@/store/slices/viewSlice';
+import paginationReducer from '@/store/slices/paginationSlice';
+import passkeyReducer from '@/store/slices/passkeySlice';
 import uiReducer from '@/store/slices/uiSlice.ts';
+import uploadReducer from '@/store/slices/uploadSlice';
+import viewReducer, { initialState as viewInitialState } from '@/store/slices/viewSlice';
+import { fetchAncestors } from '@/store/slices/fileSystemThunks.ts';
 
 const searchParams = new URLSearchParams(window.location.search);
 const urlFilter = searchParams.get('filter');
-const urlFolderId = window.location.pathname.split('/').pop();
+const urlFolderId = window.location.pathname.split('/').pop() || 'root';
 
 export const store = configureStore({
   reducer: {
@@ -29,6 +31,7 @@ export const store = configureStore({
     navigation: navigationReducer,
     view: viewReducer,
     ui: uiReducer,
+    upload: uploadReducer,
   },
   preloadedState: {
     navigation: {
@@ -41,6 +44,11 @@ export const store = configureStore({
     },
   },
 });
+
+// Auto-fetch breadcrumbs if we start with a specific folder ID
+if (urlFolderId && urlFolderId !== 'root' && window.location.pathname.startsWith('/folder/')) {
+  store.dispatch(fetchAncestors(urlFolderId));
+}
 
 // 🛠️  Typed hooks helpers (optional but common)
 export type RootState = ReturnType<typeof store.getState>;

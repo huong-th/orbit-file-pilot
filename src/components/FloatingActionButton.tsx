@@ -1,13 +1,13 @@
-import React, { useState, useRef, useEffect } from 'react';
 import { Plus, Upload, FolderPlus, X } from 'lucide-react';
-import { useDispatch } from 'react-redux';
-import type { AppDispatch } from '@/store/store.ts';
-import { openModal } from '@/store/slices/uiSlice';
+import React, { useState, useRef, useEffect } from 'react';
+
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { useAppDispatch } from '@/hooks/redux.ts';
+import { openModal } from '@/store/slices/uiSlice';
 
 const FloatingActionButton: React.FC = () => {
-  const dispatch = useDispatch<AppDispatch>();
+  const dispatch = useAppDispatch();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);

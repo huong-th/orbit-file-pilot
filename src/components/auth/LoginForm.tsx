@@ -1,7 +1,17 @@
+import { Mail, Smartphone, Fingerprint } from 'lucide-react';
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
+
+import ForgotPasswordModal from '@/components/auth/ForgotPasswordModal';
+import FingerprintLoginTab from '@/components/auth/login-tabs/FingerprintLoginTab';
+import OTPLoginTab from '@/components/auth/login-tabs/OTPLoginTab';
+import PasswordLoginTab from '@/components/auth/login-tabs/PasswordLoginTab';
+import LoginHeader from '@/components/auth/LoginHeader';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
+import { useToast } from '@/hooks/use-toast';
 import {
   loginWithPassword,
   loginWithOTP,
@@ -10,15 +20,6 @@ import {
   clearError,
   loginWithGoogle,
 } from '@/store/slices/authSlice';
-import { Mail, Smartphone, Fingerprint } from 'lucide-react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useToast } from '@/hooks/use-toast';
-import ForgotPasswordModal from '@/components/auth/ForgotPasswordModal';
-import LoginHeader from '@/components/auth/LoginHeader';
-import PasswordLoginTab from '@/components/auth/login-tabs/PasswordLoginTab';
-import OTPLoginTab from '@/components/auth/login-tabs/OTPLoginTab';
-import FingerprintLoginTab from '@/components/auth/login-tabs/FingerprintLoginTab';
 
 interface LoginFormData {
   email: string;

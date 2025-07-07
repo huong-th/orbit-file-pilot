@@ -1,10 +1,11 @@
+import { ChevronRight, Home } from 'lucide-react';
 import React from 'react';
-import { RootState } from '@/store/store.ts';
 import { NavLink } from 'react-router-dom';
+
 import { useAppDispatch, useAppSelector } from '@/hooks/redux.ts';
 import { selectBreadcrumb } from '@/store/selectors/breadcrumb.ts';
 import { changeFolder } from '@/store/slices/fileSystemThunks.ts';
-import { ChevronRight, Home } from 'lucide-react';
+import { RootState } from '@/store/store.ts';
 
 const BreadcrumbNavigation: React.FC = () => {
   const dispatch = useAppDispatch();

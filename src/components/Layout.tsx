@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import Sidebar from '@/components/Sidebar';
-import TopNavigation from '@/components/TopNavigation';
+
 import FloatingActionButton from '@/components/FloatingActionButton';
 import CreateFolderModal from '@/components/modals/CreateFolderModal';
-import UploadModal from '@/components/modals/UploadModal';
+import DeleteConfirmModal from '@/components/modals/DeleteConfirmModal';
 import FilePreviewModal from '@/components/modals/FilePreviewModal';
 import RenameModal from '@/components/modals/RenameModal';
-import DeleteConfirmModal from '@/components/modals/DeleteConfirmModal';
+import UploadModal from '@/components/modals/UploadModal';
+import Sidebar from '@/components/Sidebar';
+import TopNavigation from '@/components/TopNavigation';
 
 interface LayoutProps {
   children: React.ReactNode;

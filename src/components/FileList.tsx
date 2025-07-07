@@ -1,32 +1,34 @@
-import React from 'react';
+import { formatDistanceToNow, parseISO } from 'date-fns';
 import { MoreHorizontal, Download, Edit, Trash2, Share, Eye, Clock, HardDrive } from 'lucide-react';
-import { useDispatch } from 'react-redux';
-import { navigateToFolder } from '@/store/slices/navigationSlice';
-import { openModal, setPreviewFile, setRenameItem, setDeleteItems } from '@/store/slices/uiSlice';
-import { Button } from '@/components/ui/button';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+
 import { Badge } from '@/components/ui/badge';
-import type { DriveItem } from '@/types/files';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { formatDistanceToNow, parseISO } from 'date-fns';
+import { useAppDispatch } from '@/hooks/redux.ts';
 import { convertAndFindLargestUnit } from '@/lib/utils';
-import { useNavigate } from 'react-router-dom';
+import { changeFolder } from '@/store/slices/fileSystemThunks.ts';
+import { openModal, setPreviewFile, setRenameItem, setDeleteItems } from '@/store/slices/uiSlice';
+
+import type { DriveItem } from '@/types/files';
 
 interface FileListProps {
   files: DriveItem[];
 }
 
 const FileList: React.FC<FileListProps> = ({ files }) => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
   const handleFileClick = (file: DriveItem) => {
     if (file.kind === 'folder') {
-      dispatch(navigateToFolder({ folderId: file.id }));
+      dispatch(changeFolder(file.id));
       navigate(`/folder/${file.id}`);
     } else {
       dispatch(setPreviewFile(file));

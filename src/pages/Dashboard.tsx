@@ -1,3 +1,4 @@
+import { formatDistanceToNow, parseISO, startOfToday, subMonths} from 'date-fns';
 import {
   Folder,
   Image,
@@ -11,9 +12,9 @@ import {
   Eye,
   Share2,
   Trash2,
-  Move
+  Move, FileAudio
 } from 'lucide-react';
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect, useMemo} from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
   BarChart,
@@ -32,6 +33,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {DateRangePicker} from "@/components/ui/date-range-picker.tsx";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -56,118 +58,40 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Tooltip as UITooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-
-// Mock data with updated structure
-const summaryData = {
-  totalFolders: 24,
-  totalImages: 1247,
-  totalVideos: 89,
-  totalDocuments: 456,
-  storageUsed: 87.3,
-  storageTotal: 100,
-  newUploadsThisMonth: {
-    images: 172,
-    videos: 12,
-    documents: 36,
-    folders: 3
-  }
-};
-
-const uploadTrendsData = {
-  daily: [
-    { name: 'Mon', images: 12, videos: 2, documents: 8, others: 3 },
-    { name: 'Tue', images: 19, videos: 4, documents: 12, others: 5 },
-    { name: 'Wed', images: 8, videos: 1, documents: 15, others: 2 },
-    { name: 'Thu', images: 25, videos: 6, documents: 9, others: 7 },
-    { name: 'Fri', images: 18, videos: 3, documents: 18, others: 4 },
-    { name: 'Sat', images: 31, videos: 8, documents: 6, others: 9 },
-    { name: 'Sun', images: 22, videos: 5, documents: 11, others: 6 },
-  ],
-  monthly: [
-    { name: 'Jan', images: 287, videos: 45, documents: 189, others: 67 },
-    { name: 'Feb', images: 356, videos: 52, documents: 234, others: 89 },
-    { name: 'Mar', images: 423, videos: 61, documents: 298, others: 102 },
-    { name: 'Apr', images: 298, videos: 38, documents: 187, others: 76 },
-    { name: 'May', images: 387, videos: 67, documents: 256, others: 94 },
-    { name: 'Jun', images: 445, videos: 73, documents: 312, others: 118 },
-  ],
-};
-
-const fileTypeDistribution = [
-  { name: 'Images', value: 1247, percentage: 62, color: '#3b82f6', size: '24.5 GB' },
-  { name: 'Documents', value: 456, percentage: 23, color: '#10b981', size: '8.9 GB' },
-  { name: 'Videos', value: 89, percentage: 4, color: '#f59e0b', size: '45.2 GB' },
-  { name: 'Others', value: 234, percentage: 11, color: '#8b5cf6', size: '8.7 GB' },
-];
-
-const recentFiles = [
-  {
-    name: 'vacation-photo.jpg',
-    type: 'Image',
-    size: '2.4 MB',
-    date: '2 hours ago',
-    icon: '🖼️',
-    fullDate: '2024-07-07 14:30'
-  },
-  {
-    name: 'project-proposal.pdf',
-    type: 'Document',
-    size: '1.8 MB',
-    date: '4 hours ago',
-    icon: '📄',
-    fullDate: '2024-07-07 12:30'
-  },
-  {
-    name: 'presentation.mp4',
-    type: 'Video',
-    size: '45.2 MB',
-    date: '1 day ago',
-    icon: '🎥',
-    fullDate: '2024-07-06 16:45'
-  },
-  {
-    name: 'report-Q4.docx',
-    type: 'Document',
-    size: '892 KB',
-    date: '2 days ago',
-    icon: '📝',
-    fullDate: '2024-07-05 10:20'
-  },
-  {
-    name: 'screenshot.png',
-    type: 'Image',
-    size: '1.2 MB',
-    date: '3 days ago',
-    icon: '🖼️',
-    fullDate: '2024-07-04 09:15'
-  },
-  {
-    name: 'meeting-notes.txt',
-    type: 'Document',
-    size: '45 KB',
-    date: '3 days ago',
-    icon: '📝',
-    fullDate: '2024-07-04 11:30'
-  },
-];
+import {useAppDispatch, useAppSelector} from "@/hooks/redux.ts";
+import {convertAndFindLargestUnit} from "@/lib/utils.ts";
+import {fetchDashboardSummary} from "@/store/slices/fileSystemThunks.ts";
+import {RootState} from "@/store/store.ts";
 
 const Dashboard = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [timeRange, setTimeRange] = useState<'daily' | 'monthly'>('monthly');
+  const dispatch = useAppDispatch();
   const [searchQuery, setSearchQuery] = useState('');
   const [fileTypeFilter, setFileTypeFilter] = useState<string>('all');
   const [timeFilter, setTimeFilter] = useState<string>('all');
+  const [viewMode, setViewMode] = useState<'daily'|'monthly'|'custom'>('monthly');
+  const [customRange, setCustomRange] = useState<{from: string; to: string}>({
+    from: '',
+    to: '',
+  });
+
+  const { summaryData, uploadTrendsData, fileTypeDistribution, recentFiles, isLoading, error } = useAppSelector((s: RootState) => s.dashboard);
+
+  useEffect(() => {
+    dispatch(fetchDashboardSummary());
+  }, [dispatch]);
+
 
   // Initialize time range from URL
   useEffect(() => {
     const viewParam = searchParams.get('view');
     if (viewParam && ['daily', 'monthly'].includes(viewParam)) {
-      setTimeRange(viewParam as 'daily' | 'monthly');
+      setViewMode(viewParam as 'daily' | 'monthly');
     }
   }, [searchParams]);
 
   const handleTimeRangeChange = (range: 'daily' | 'monthly') => {
-    setTimeRange(range);
+    setViewMode(range);
     const newSearchParams = new URLSearchParams(searchParams);
     newSearchParams.set('view', range);
     setSearchParams(newSearchParams);
@@ -178,6 +102,7 @@ const Dashboard = () => {
     if (percentage < 90) return 'bg-yellow-500';
     return 'bg-red-500';
   };
+  console.log(summaryData);
 
   const storagePercentage = (summaryData.storageUsed / summaryData.storageTotal) * 100;
 
@@ -185,7 +110,7 @@ const Dashboard = () => {
     {
       title: 'Folders',
       value: summaryData.totalFolders,
-      newCount: summaryData.newUploadsThisMonth.folders,
+      newCount: summaryData.newUploadsThisMonth.totalFolders,
       icon: Folder,
       color: 'text-blue-600',
       bgColor: 'bg-blue-50 dark:bg-blue-900/20',
@@ -194,7 +119,7 @@ const Dashboard = () => {
     {
       title: 'Images',
       value: summaryData.totalImages,
-      newCount: summaryData.newUploadsThisMonth.images,
+      newCount: summaryData.newUploadsThisMonth.totalImages,
       icon: Image,
       color: 'text-green-600',
       bgColor: 'bg-green-50 dark:bg-green-900/20',
@@ -203,7 +128,7 @@ const Dashboard = () => {
     {
       title: 'Videos',
       value: summaryData.totalVideos,
-      newCount: summaryData.newUploadsThisMonth.videos,
+      newCount: summaryData.newUploadsThisMonth.totalVideos,
       icon: Video,
       color: 'text-yellow-600',
       bgColor: 'bg-yellow-50 dark:bg-yellow-900/20',
@@ -212,8 +137,17 @@ const Dashboard = () => {
     {
       title: 'Documents',
       value: summaryData.totalDocuments,
-      newCount: summaryData.newUploadsThisMonth.documents,
+      newCount: summaryData.newUploadsThisMonth.totalDocuments,
       icon: FileText,
+      color: 'text-purple-600',
+      bgColor: 'bg-purple-50 dark:bg-purple-900/20',
+      emoji: '📄'
+    },
+    {
+      title: 'Musics',
+      value: summaryData.totalMusic,
+      newCount: summaryData.newUploadsThisMonth.totalMusic,
+      icon: FileAudio,
       color: 'text-purple-600',
       bgColor: 'bg-purple-50 dark:bg-purple-900/20',
       emoji: '📄'
@@ -242,9 +176,16 @@ const Dashboard = () => {
   // Filter recent files based on search and filters
   const filteredFiles = recentFiles.filter(file => {
     const matchesSearch = file.name.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesType = fileTypeFilter === 'all' || file.type.toLowerCase() === fileTypeFilter.toLowerCase();
+    const matchesType = fileTypeFilter === 'all' || file.category === fileTypeFilter;
     return matchesSearch && matchesType;
   });
+
+  // helper: lọc mảng dựa trên timeRange & customRange
+  const trendData = useMemo(() => {
+    let base = uploadTrendsData[viewMode === 'daily' ? 'daily' : 'monthly'];
+
+    return base;
+  }, [viewMode, customRange]);
 
   return (
     <TooltipProvider>
@@ -345,7 +286,7 @@ const Dashboard = () => {
             {/* Upload Trends Chart */}
             <Card className="border-0 shadow-md">
               <CardHeader>
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between flex-wrap gap-4">
                   <div>
                     <CardTitle className="flex items-center gap-2">
                       <TrendingUp className="w-5 h-5" />
@@ -353,28 +294,42 @@ const Dashboard = () => {
                     </CardTitle>
                     <CardDescription>File uploads over time by type</CardDescription>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <Button
-                      variant={timeRange === 'daily' ? 'default' : 'outline'}
+                      variant={viewMode === 'daily' ? 'default' : 'outline'}
                       size="sm"
-                      onClick={() => handleTimeRangeChange('daily')}
+                      onClick={() => {
+                        setViewMode('daily');
+                        setCustomRange({ from: '', to: '' });
+                      }}
                     >
                       Daily
                     </Button>
                     <Button
-                      variant={timeRange === 'monthly' ? 'default' : 'outline'}
+                      variant={viewMode === 'monthly' ? 'default' : 'outline'}
                       size="sm"
-                      onClick={() => handleTimeRangeChange('monthly')}
+                      onClick={() => {
+                        setViewMode('monthly');
+                        setCustomRange({ from: '', to: '' });
+                      }}
                     >
                       Monthly
                     </Button>
+                    <DateRangePicker
+                      onUpdate={(values) => console.log(values)}
+                      initialDateFrom={subMonths(startOfToday(), 1)}
+                      initialDateTo={startOfToday()}
+                      align="start"
+                      locale="vi-VN"
+                      showCompare={false}
+                    />
                   </div>
                 </div>
               </CardHeader>
               <CardContent>
                 <div className="h-80">
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={uploadTrendsData[timeRange]}>
+                    <BarChart data={trendData}>
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="name" />
                       <YAxis />
@@ -458,9 +413,10 @@ const Dashboard = () => {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All types</SelectItem>
-                      <SelectItem value="image">Images</SelectItem>
-                      <SelectItem value="document">Documents</SelectItem>
-                      <SelectItem value="video">Videos</SelectItem>
+                      <SelectItem value="images">Images</SelectItem>
+                      <SelectItem value="documents">Documents</SelectItem>
+                      <SelectItem value="videos">Videos</SelectItem>
+                      <SelectItem value="others">Others</SelectItem>
                     </SelectContent>
                   </Select>
                   <Select value={timeFilter} onValueChange={setTimeFilter}>
@@ -492,20 +448,20 @@ const Dashboard = () => {
                   {filteredFiles.slice(0, 5).map((file, index) => (
                     <TableRow key={index}>
                       <TableCell className="flex items-center gap-3">
-                        <span className="text-lg">{file.icon}</span>
+                        <span className="text-lg">📁</span>
                         <span className="font-medium">{file.name}</span>
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline">{file.type}</Badge>
+                        <Badge variant="outline">{file.category}</Badge>
                       </TableCell>
-                      <TableCell>{file.size}</TableCell>
+                      <TableCell>{convertAndFindLargestUnit(parseInt(file.size))}</TableCell>
                       <TableCell className="text-gray-600 dark:text-gray-400">
                         <UITooltip>
                           <TooltipTrigger asChild>
-                            <span className="cursor-help">{file.date}</span>
+                            <span className="cursor-help">{formatDistanceToNow(parseISO(file.createdAt), { addSuffix: true })}</span>
                           </TooltipTrigger>
                           <TooltipContent>
-                            <p>{file.fullDate}</p>
+                            <p>{file.createdAt}</p>
                           </TooltipContent>
                         </UITooltip>
                       </TableCell>
@@ -570,7 +526,7 @@ const Dashboard = () => {
                   <p className="text-sm text-muted-foreground">Quick Stats</p>
                   <div className="flex items-center gap-4">
                     <Badge variant="secondary">
-                      {summaryData.newUploadsThisMonth.images + summaryData.newUploadsThisMonth.documents + summaryData.newUploadsThisMonth.videos} new files this month
+                      {summaryData.newUploadsThisMonth.totalImages + summaryData.newUploadsThisMonth.totalDocuments + summaryData.newUploadsThisMonth.totalVideos + summaryData.newUploadsThisMonth.totalMusic + summaryData.newUploadsThisMonth.totalOthers} new files this month
                     </Badge>
                     <Badge variant="outline">
                       {fileTypeDistribution.reduce((sum, type) => sum + type.value, 0)} total files

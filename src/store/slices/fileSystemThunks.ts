@@ -14,7 +14,7 @@ import {
 } from '@/store/slices/paginationSlice';
 
 import type { RootState } from '@/store/store';
-import type { BreadcrumbItem, DriveItem, FileCategory, RemoteFolder } from '@/types/files';
+import type { BreadcrumbItem, DriveItem, FileCategory, RemoteFolder, SummaryData, TrendPoint, FileTypeDistributionItem, RecentFile } from '@/types/files';
 
 /* ------------------------------------------------------------------ */
 /*  Fetch FLAT list (Images, Videos, Starred, Trash)                   */
@@ -159,5 +159,36 @@ export const changeFolder = createAsyncThunk<void, string, { state: RootState }>
   async (folderId, { dispatch }) => {
     dispatch(navigateToFolder({ folderId }));
     dispatch(fetchAncestors(folderId));
+  }
+);
+
+export const fetchDashboardSummary = createAsyncThunk<
+  {
+    summaryData: SummaryData;
+    uploadTrendsData: { daily: TrendPoint[]; monthly: TrendPoint[] };
+    fileTypeDistribution: FileTypeDistributionItem[];
+    recentFiles: RecentFile[];
+  },
+  // payload = void (không cần gì truyền vào)
+  void,
+  { state: RootState; rejectValue: string }
+>(
+  'dashboard/fetchSummary',
+  async (_, { rejectWithValue }) => {
+    try {
+      // Gọi qua Axios instance, header Authorization thường đã gắn sẵn
+      // qua interceptor; nếu không thì thêm headers tuỳ ý.
+      const { data } = await api.get('/dashboard/summary');
+
+      return data; // Type khớp với generic trả về ở trên
+    } catch (err) {
+      // Bắt lỗi chuẩn Axios để đẩy rejectValue ra ngoài
+      if (isAxiosError(err)) {
+        return rejectWithValue(
+          err.response?.data?.message || err.message || 'Unexpected server error'
+        );
+      }
+      throw err; // Trường hợp lỗi không phải Axios
+    }
   }
 );

@@ -89,3 +89,59 @@ export interface BreadcrumbItem {
   id: string;
   name: string;
 }
+
+// Dashboard summary response
+export interface NewUploadsThisMonth {
+  totalFolders: number;
+  totalImages: number;
+  totalVideos: number;
+  totalDocuments: number;
+  totalMusic: number;
+  totalOthers: number;
+}
+
+export interface SummaryData {
+  totalFolders: number;
+  totalImages: number;
+  totalVideos: number;
+  totalDocuments: number;
+  totalMusic: number;
+  totalOthers: number;
+  storageUsed: number;
+  storageTotal: number;
+  newUploadsThisMonth: NewUploadsThisMonth;
+}
+
+export interface TrendPoint {
+  name: string;         // 'Mon', 'Jan', ...
+  images: number;
+  videos: number;
+  documents: number;
+  musics: number;
+  others: number;
+}
+
+export interface FileTypeDistributionItem {
+  name: string;        // e.g. 'Picture'
+  value: number;
+  percentage: number;
+  size: string;        // e.g. '0.1 GB'
+  category: string;    // 'picture' | 'video' | ...
+  color: string;
+}
+
+export interface RecentFile {
+  id: string;
+  createdAt: string;
+  updatedAt: string;
+  objectKey: string;
+  name: string;
+  size: string;
+  mimeType: string;
+  category: string;
+  parent: {
+    id: string;
+    name: string;
+  } | null;
+  // phần còn lại nếu bạn cần
+}

@@ -4,7 +4,9 @@ import { configureStore } from '@reduxjs/toolkit';
 import authReducer from '@/store/slices/authSlice';
 
 // File‑manager domain
+import dashboardReducer from '@/store/slices/dashboardSlice';
 import fileSystemReducer from '@/store/slices/fileSystemSlice';
+import { fetchAncestors } from '@/store/slices/fileSystemThunks.ts';
 import navigationReducer, {
   initialState as navigationInitialState,
 } from '@/store/slices/navigationSlice';
@@ -13,7 +15,7 @@ import passkeyReducer from '@/store/slices/passkeySlice';
 import uiReducer from '@/store/slices/uiSlice.ts';
 import uploadReducer from '@/store/slices/uploadSlice';
 import viewReducer, { initialState as viewInitialState } from '@/store/slices/viewSlice';
-import { fetchAncestors } from '@/store/slices/fileSystemThunks.ts';
+
 
 const searchParams = new URLSearchParams(window.location.search);
 const urlFilter = searchParams.get('filter');
@@ -32,6 +34,7 @@ export const store = configureStore({
     view: viewReducer,
     ui: uiReducer,
     upload: uploadReducer,
+    dashboard: dashboardReducer,
   },
   preloadedState: {
     navigation: {

@@ -12,6 +12,7 @@ import {
   ChevronLeft,
   ChevronRight,
   FileBarChart,
+  Search,
 } from 'lucide-react';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
@@ -66,13 +67,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, collapsed, onCollap
   const actionItems = [
     { id: 'dashboard', name: t('sidebar.dashboard'), icon: BarChart, path: '/dashboard' },
     { id: 'reports', name: t('sidebar.reports', 'Reports'), icon: FileBarChart, path: '/reports' },
+    { id: 'search', name: t('sidebar.search', 'Search'), icon: Search, path: '/search' },
     { id: 'share', name: t('sidebar.share'), icon: Share, path: '/', filter: 'share' },
     { id: 'starred', name: t('sidebar.starred'), icon: Star, path: '/', filter: 'starred' },
     { id: 'recycle', name: t('sidebar.recycleBin'), icon: Trash2, path: '/', filter: 'recycle' },
   ];
 
   const handleCategoryClick = (categoryId: string, filter?: string, path?: string) => {
-    if (categoryId === 'dashboard' || categoryId === 'reports') return;
+    if (categoryId === 'dashboard' || categoryId === 'reports' || categoryId === 'search') return;
 
     if (filter) dispatch(setCurrentFilter(filter));
     if (currentFolder !== 'root') {
@@ -219,6 +221,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, collapsed, onCollap
                         ? location.pathname === '/dashboard'
                         : item.id === 'reports'
                         ? location.pathname === '/reports'
+                        : item.id === 'search'
+                        ? location.pathname === '/search'
                         : !location.pathname.startsWith('/folder') &&
                           location.pathname === '/' &&
                           currentFilter === item.filter;

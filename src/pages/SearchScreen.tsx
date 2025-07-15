@@ -1,7 +1,7 @@
-import { AlertCircle, Calendar, FileText } from 'lucide-react';
-import React, { useCallback, useEffect } from 'react';
+import { Search, AlertCircle, FileText } from 'lucide-react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { subMonths, startOfToday } from 'date-fns';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import FileGrid from '@/components/FileGrid';
 import FileList from '@/components/FileList';
@@ -9,67 +9,91 @@ import LoadingSkeleton from '@/components/LoadingSkeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { DateRangePicker } from '@/components/ui/date-range-picker';
+import { Input } from '@/components/ui/input';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
-import { fetchFilesByDateRange } from '@/store/slices/reportThunks';
-import { setDateRange, clearError } from '@/store/slices/reportSlice';
+import { searchFiles } from '@/store/slices/searchThunks';
+import { setQuery, clearError, clearSearch, setLoading } from '@/store/slices/searchSlice';
 
 import type { RootState } from '@/store/store';
 
-const ReportScreen: React.FC = () => {
+const SearchScreen: React.FC = () => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  
+  const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout | null>(null);
 
   // Redux selectors
-  const { startDate, endDate, files, isLoading, error } = useAppSelector(
-    (state: RootState) => state.report
+  const { query, files, isLoading, error } = useAppSelector(
+    (state: RootState) => state.search
   );
   const viewMode = useAppSelector((state: RootState) => state.navigation.viewMode);
 
-  // Initialize date range on mount
+  // Initialize from URL params
   useEffect(() => {
-    if (!startDate || !endDate) {
-      const defaultStartDate = subMonths(startOfToday(), 1);
-      const defaultEndDate = startOfToday();
-      
-      dispatch(setDateRange({
-        startDate: defaultStartDate,
-        endDate: defaultEndDate,
-      }));
-      
-      // Fetch initial data
-      dispatch(fetchFilesByDateRange({
-        startDate: defaultStartDate,
-        endDate: defaultEndDate,
-      }));
+    const urlQuery = searchParams.get('q') || '';
+    if (urlQuery && urlQuery !== query) {
+      dispatch(setQuery(urlQuery));
+      dispatch(searchFiles({ query: urlQuery }));
     }
-  }, [dispatch, startDate, endDate]);
+  }, [searchParams, dispatch, query]);
 
-  // Handle date range updates
-  const handleDateRangeUpdate = useCallback(
-    (values: { range: { from: Date; to: Date | undefined } }) => {
-      const { from, to } = values.range;
+  // Handle search input changes with debouncing
+  const handleSearchChange = useCallback(
+    (value: string) => {
+      dispatch(setQuery(value));
       
-      if (from && to) {
-        dispatch(setDateRange({
-          startDate: from,
-          endDate: to,
-        }));
-        
-        // Fetch files for the new date range
-        dispatch(fetchFilesByDateRange({
-          startDate: from,
-          endDate: to,
-        }));
+      // Update URL
+      if (value) {
+        setSearchParams({ q: value });
+      } else {
+        setSearchParams({});
       }
+
+      // Clear previous timeout
+      if (searchTimeout) {
+        clearTimeout(searchTimeout);
+      }
+
+      if (!value.trim()) {
+        dispatch(clearSearch());
+        return;
+      }
+
+      // Show loading immediately when typing
+      dispatch(setLoading(true));
+
+      // Set new timeout for API call
+      const newTimeout = setTimeout(() => {
+        dispatch(searchFiles({ query: value.trim() }));
+      }, 3000);
+
+      setSearchTimeout(newTimeout);
     },
-    [dispatch]
+    [dispatch, searchTimeout, setSearchParams]
   );
+
+  // Navigate to search screen if typing and not already there
+  const handleInputFocus = useCallback(() => {
+    if (window.location.pathname !== '/search') {
+      navigate('/search');
+    }
+  }, [navigate]);
 
   // Handle error clearing
   const handleClearError = useCallback(() => {
     dispatch(clearError());
   }, [dispatch]);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (searchTimeout) {
+        clearTimeout(searchTimeout);
+      }
+    };
+  }, [searchTimeout]);
 
   // Stats calculations
   const totalFiles = files.length;
@@ -96,14 +120,14 @@ const ReportScreen: React.FC = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-lg bg-primary/10">
-              <FileText className="w-6 h-6 text-primary" />
+              <Search className="w-6 h-6 text-primary" />
             </div>
             <div>
               <h1 className="text-2xl font-bold text-foreground">
-                {t('reports.title', 'File Reports')}
+                {t('search.title', 'Search Files')}
               </h1>
               <p className="text-muted-foreground">
-                {t('reports.description', 'View and analyze your uploaded files by date range')}
+                {t('search.description', 'Search through your uploaded files')}
               </p>
             </div>
           </div>
@@ -113,26 +137,28 @@ const ReportScreen: React.FC = () => {
       {/* Content */}
       <div className="flex-1 overflow-auto px-8 pb-8 min-h-0">
         <div className="space-y-6">
-          {/* Date Range Filter */}
+          {/* Search Input */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Calendar className="w-5 h-5" />
-                {t('reports.dateRange', 'Date Range')}
+                <Search className="w-5 h-5" />
+                {t('search.searchFiles', 'Search Files')}
               </CardTitle>
               <CardDescription>
-                {t('reports.dateRangeDescription', 'Select a date range to filter uploaded files')}
+                {t('search.searchDescription', 'Enter keywords to search through your files')}
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <DateRangePicker
-                onUpdate={handleDateRangeUpdate}
-                initialDateFrom={startDate || subMonths(startOfToday(), 1)}
-                initialDateTo={endDate || startOfToday()}
-                align="start"
-                locale="vi-VN"
-                showCompare={false}
-              />
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  placeholder={t('search.placeholder', 'Search files...')}
+                  value={query}
+                  onChange={(e) => handleSearchChange(e.target.value)}
+                  onFocus={handleInputFocus}
+                  className="pl-10"
+                />
+              </div>
             </CardContent>
           </Card>
 
@@ -149,31 +175,15 @@ const ReportScreen: React.FC = () => {
             </Alert>
           )}
 
-          {/* Stats Cards */}
-          {isLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {Array.from({ length: 4 }).map((_, index) => (
-                <Card key={index}>
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-2">
-                        <LoadingSkeleton count={1} viewMode="list" />
-                        <LoadingSkeleton count={1} viewMode="list" />
-                      </div>
-                      <LoadingSkeleton count={1} viewMode="list" />
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          ) : files.length > 0 && (
+          {/* Stats Cards - Only show if there are results */}
+          {!isLoading && files.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <Card>
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium text-muted-foreground">
-                        {t('reports.totalFiles', 'Total Files')}
+                        {t('search.totalFiles', 'Total Files')}
                       </p>
                       <p className="text-2xl font-bold">{totalFiles}</p>
                     </div>
@@ -187,7 +197,7 @@ const ReportScreen: React.FC = () => {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium text-muted-foreground">
-                        {t('reports.totalSize', 'Total Size')}
+                        {t('search.totalSize', 'Total Size')}
                       </p>
                       <p className="text-2xl font-bold">{formatFileSize(totalSize)}</p>
                     </div>
@@ -201,7 +211,7 @@ const ReportScreen: React.FC = () => {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium text-muted-foreground">
-                        {t('reports.images', 'Images')}
+                        {t('search.images', 'Images')}
                       </p>
                       <p className="text-2xl font-bold">{filesByCategory.images || 0}</p>
                     </div>
@@ -215,7 +225,7 @@ const ReportScreen: React.FC = () => {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium text-muted-foreground">
-                        {t('reports.documents', 'Documents')}
+                        {t('search.documents', 'Documents')}
                       </p>
                       <p className="text-2xl font-bold">{filesByCategory.documents || 0}</p>
                     </div>
@@ -226,16 +236,16 @@ const ReportScreen: React.FC = () => {
             </div>
           )}
 
-          {/* Files Display */}
+          {/* Search Results */}
           <Card>
             <CardHeader>
               <CardTitle>
-                {t('reports.filesInRange', 'Files in Selected Range')}
+                {t('search.searchResults', 'Search Results')}
               </CardTitle>
               <CardDescription>
-                {startDate && endDate && (
+                {query && (
                   <>
-                    {t('reports.showing', 'Showing files from')} {startDate.toLocaleDateString('vi-VN')} {t('reports.to', 'to')} {endDate.toLocaleDateString('vi-VN')}
+                    {t('search.searchingFor', 'Searching for')}: "{query}"
                   </>
                 )}
               </CardDescription>
@@ -245,14 +255,24 @@ const ReportScreen: React.FC = () => {
                 <div className="p-6">
                   {isLoading ? (
                     <LoadingSkeleton count={12} viewMode={viewMode} />
+                  ) : !query ? (
+                    <div className="flex flex-col items-center justify-center h-64 text-muted-foreground">
+                      <div className="text-6xl opacity-20 mb-4">🔍</div>
+                      <h3 className="text-lg font-semibold mb-2 text-foreground">
+                        {t('search.startSearching', 'Start searching')}
+                      </h3>
+                      <p className="text-sm text-center max-w-md">
+                        {t('search.startSearchingDescription', 'Enter keywords in the search box above to find your files.')}
+                      </p>
+                    </div>
                   ) : files.length === 0 ? (
                     <div className="flex flex-col items-center justify-center h-64 text-muted-foreground">
                       <div className="text-6xl opacity-20 mb-4">📄</div>
                       <h3 className="text-lg font-semibold mb-2 text-foreground">
-                        {t('reports.noFiles', 'No files found')}
+                        {t('search.noResults', 'No data')}
                       </h3>
                       <p className="text-sm text-center max-w-md">
-                        {t('reports.noFilesDescription', 'No files were uploaded in the selected date range.')}
+                        {t('search.noResultsDescription', 'No files found matching your search criteria.')}
                       </p>
                     </div>
                   ) : (
@@ -272,4 +292,4 @@ const ReportScreen: React.FC = () => {
   );
 };
 
-export default ReportScreen;
+export default SearchScreen;

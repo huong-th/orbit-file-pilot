@@ -18,6 +18,7 @@ import Login from '@/pages/Login';
 import NotFound from '@/pages/NotFound';
 import Register from '@/pages/Register.tsx';
 import ReportScreen from '@/pages/ReportScreen';
+import SearchScreen from '@/pages/SearchScreen';
 import { setReduxDispatch } from '@/services/api';
 import { store } from '@/store/store';
 
@@ -49,6 +50,7 @@ const App = () => (
                             <Route path="/folder/*" element={<Index />} />
                             <Route path="/dashboard" element={<Dashboard />} />
                             <Route path="/reports" element={<ReportScreen />} />
+                            <Route path="/search" element={<SearchScreen />} />
                             <Route path="/settings" element={<AccountSettings />} />
                             <Route path="*" element={<NotFound />} />
                           </Routes>

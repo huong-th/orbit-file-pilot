@@ -11,6 +11,7 @@ import {
   BarChart,
   ChevronLeft,
   ChevronRight,
+  FileBarChart,
 } from 'lucide-react';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
@@ -64,13 +65,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, collapsed, onCollap
 
   const actionItems = [
     { id: 'dashboard', name: t('sidebar.dashboard'), icon: BarChart, path: '/dashboard' },
+    { id: 'reports', name: t('sidebar.reports', 'Reports'), icon: FileBarChart, path: '/reports' },
     { id: 'share', name: t('sidebar.share'), icon: Share, path: '/', filter: 'share' },
     { id: 'starred', name: t('sidebar.starred'), icon: Star, path: '/', filter: 'starred' },
     { id: 'recycle', name: t('sidebar.recycleBin'), icon: Trash2, path: '/', filter: 'recycle' },
   ];
 
   const handleCategoryClick = (categoryId: string, filter?: string, path?: string) => {
-    if (categoryId === 'dashboard') return;
+    if (categoryId === 'dashboard' || categoryId === 'reports') return;
 
     if (filter) dispatch(setCurrentFilter(filter));
     if (currentFolder !== 'root') {
@@ -215,6 +217,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, collapsed, onCollap
                     const isActive =
                       item.id === 'dashboard'
                         ? location.pathname === '/dashboard'
+                        : item.id === 'reports'
+                        ? location.pathname === '/reports'
                         : !location.pathname.startsWith('/folder') &&
                           location.pathname === '/' &&
                           currentFilter === item.filter;

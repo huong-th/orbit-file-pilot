@@ -12,6 +12,7 @@ import navigationReducer, {
 } from '@/store/slices/navigationSlice';
 import paginationReducer from '@/store/slices/paginationSlice';
 import passkeyReducer from '@/store/slices/passkeySlice';
+import reportReducer from '@/store/slices/reportSlice';
 import uiReducer from '@/store/slices/uiSlice.ts';
 import uploadReducer from '@/store/slices/uploadSlice';
 import viewReducer, { initialState as viewInitialState } from '@/store/slices/viewSlice';
@@ -35,6 +36,7 @@ export const store = configureStore({
     ui: uiReducer,
     upload: uploadReducer,
     dashboard: dashboardReducer,
+    report: reportReducer,
   },
   preloadedState: {
     navigation: {

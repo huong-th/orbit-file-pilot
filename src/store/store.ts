@@ -2,6 +2,7 @@ import { configureStore } from '@reduxjs/toolkit';
 
 // Auth & security
 import authReducer from '@/store/slices/authSlice';
+import userProfileReducer from '@/store/slices/userProfileSlice';
 
 // File‑manager domain
 import dashboardReducer from '@/store/slices/dashboardSlice';
@@ -27,6 +28,7 @@ export const store = configureStore({
   reducer: {
     // Security / user
     auth: authReducer,
+    userProfile: userProfileReducer,
     passkey: passkeyReducer,
 
     // File system & UI

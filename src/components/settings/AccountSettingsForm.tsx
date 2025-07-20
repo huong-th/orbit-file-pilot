@@ -1,5 +1,5 @@
 import { yupResolver } from '@hookform/resolvers/yup';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
 
@@ -7,7 +7,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import { useToast } from '@/hooks/use-toast';
+import { updateUserProfile } from '@/store/slices/userProfileSlice';
 
 import AvatarUpload from './AvatarUpload';
 import DangerZone from './DangerZone';
@@ -17,7 +19,7 @@ import SecuritySection from './SecuritySection';
 interface FormData {
   username: string;
   email: string;
-  avatar: File | null; // avatar có thể là File hoặc null
+  avatar: File | null;
 }
 
 const schema = yup.object({
@@ -32,6 +34,8 @@ const schema = yup.object({
 
 const AccountSettingsForm: React.FC = () => {
   const { toast } = useToast();
+  const dispatch = useAppDispatch();
+  const { user, isLoading } = useAppSelector((state) => state.userProfile);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
@@ -40,20 +44,37 @@ const AccountSettingsForm: React.FC = () => {
     formState: { errors, isDirty, isValid },
     setValue,
     watch,
+    reset,
   } = useForm<FormData>({
     resolver: yupResolver(schema),
     defaultValues: {
-      username: 'john_doe',
-      email: 'john@example.com',
+      username: user?.name || '',
+      email: user?.email || '',
       avatar: null,
-    } as FormData, // <--- Add this cast
+    } as FormData,
   });
+
+  // Update form when user data loads
+  useEffect(() => {
+    if (user) {
+      reset({
+        username: user.name || '',
+        email: user.email || '',
+        avatar: null,
+      });
+    }
+  }, [user, reset]);
 
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const updateData: { username?: string; email?: string; avatar?: File } = {};
+      
+      if (data.username !== user?.name) updateData.username = data.username;
+      if (data.email !== user?.email) updateData.email = data.email;
+      if (data.avatar) updateData.avatar = data.avatar;
+
+      await dispatch(updateUserProfile(updateData)).unwrap();
 
       toast({
         title: 'Success',
@@ -126,10 +147,10 @@ const AccountSettingsForm: React.FC = () => {
             {/* Save Button */}
             <Button
               type="submit"
-              disabled={!isDirty || !isValid || isSubmitting}
+              disabled={!isDirty || !isValid || isSubmitting || isLoading}
               className="w-full h-11 bg-primary hover:bg-primary/90 text-primary-foreground font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isSubmitting ? 'Saving...' : 'Save Changes'}
+              {isSubmitting ? 'Saving...' : isLoading ? 'Loading...' : 'Save Changes'}
             </Button>
           </form>
         </CardContent>
